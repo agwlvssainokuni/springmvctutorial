@@ -9,11 +9,7 @@
 	<security:authentication-manager id="authenticationManager">
 		<security:authentication-provider>
 			<security:password-encoder ref="passwordEncoder" />
-			<!-- <security:user-service properties="${entree.userfile}" /> -->
-			<security:jdbc-user-service
-				data-source-ref="dataSource"
-				users-by-username-query="SELECT login_id, password, 1 FROM user WHERE login_id=? AND deleted_flg=0"
-				authorities-by-username-query="SELECT ?, 'ROLE_USER' FROM dual" />
+			<security:user-service properties="${tutorial.userfile}" />
 		</security:authentication-provider>
 	</security:authentication-manager>
 
@@ -49,7 +45,6 @@
 		<mvc:interceptor>
 			<mvc:mapping path="/login/**" />
 			<mvc:mapping path="/logout/**" />
-			<mvc:mapping path="/signup/**" />
 			<mvc:mapping path="/secure/**" />
 			<bean class="cherry.spring.common.log.web.OperationLogHandlerInterceptor" />
 		</mvc:interceptor>
@@ -92,32 +87,16 @@
 		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
 		<property name="viewResolvers">
 			<list>
-				<bean
-					class="org.springframework.mobile.device.view.LiteDeviceDelegatingViewResolver">
-					<constructor-arg>
-						<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
-							<property name="viewClass"
-								value="org.springframework.web.servlet.view.tiles3.TilesView" />
-						</bean>
-					</constructor-arg>
-					<property name="mobilePrefix" value="mobile/" />
-					<property name="tabletPrefix" value="mobile/" />
-					<property name="normalPrefix" value="normal/" />
+				<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+					<property name="viewClass"
+						value="org.springframework.web.servlet.view.tiles3.TilesView" />
 				</bean>
 				<bean
-					class="org.springframework.mobile.device.view.LiteDeviceDelegatingViewResolver">
-					<constructor-arg>
-						<bean
-							class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-							<property name="viewClass"
-								value="org.springframework.web.servlet.view.JstlView" />
-							<property name="prefix" value="/WEB-INF/jsp/" />
-							<property name="suffix" value=".jsp" />
-						</bean>
-					</constructor-arg>
-					<property name="mobilePrefix" value="mobile/" />
-					<property name="tabletPrefix" value="mobile/" />
-					<property name="normalPrefix" value="mobile/" />
+					class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<property name="viewClass"
+						value="org.springframework.web.servlet.view.JstlView" />
+					<property name="prefix" value="/WEB-INF/jsp/" />
+					<property name="suffix" value=".jsp" />
 				</bean>
 			</list>
 		</property>

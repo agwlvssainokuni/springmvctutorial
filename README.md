@@ -5,6 +5,7 @@ Spring MVCチュートリアル
 *	STEP 00: DBアクセスコードを生成する。
 *	STEP 01: ホーム画面を作成する。
 *	STEP 02: ログイン画面を作成する。
+*	STEP 03: TODO登録画面を作成する、その1。
 
 
 # STEP 00: DBアクセスコードを生成する。
@@ -39,8 +40,8 @@ $ mvn querydsl:export
 
 ## コントローラ
 ### インタフェース
-Spring MVC ではコントローラのインタフェースに「当該インタフェースが処理するURIパス」を、アノテーション `@RequestMapping(URIパス)` で定義します。アノテーションは、インタフェースとメソッドの両方に指定することができます。メソッドに指定したパスは、インタフェースに指定したURIパスからの相対パス (サブパス) として扱われます。
-アノテーションに指定するURIパスは定数文字列である必要があります。実プロジェクトでは、URIパスは予め用意された定数定義を参照することが基本です。本チュートリアルでは、`PathDef` クラスに定数定義してありますので、これを参照します。
+Spring MVC ではコントローラのインタフェースに「当該インタフェースが処理するURIパス」を、アノテーション`@RequestMapping(URIパス)`で定義します。アノテーションは、インタフェースとメソッドの両方に指定することができます。メソッドに指定したパスは、インタフェースに指定したURIパスからの相対パス (サブパス) として扱われます。
+アノテーションに指定するURIパスは定数文字列である必要があります。実プロジェクトでは、URIパスは予め用意された定数定義を参照することが基本です。本チュートリアルでは、`PathDef`クラスに定数定義してありますので、これを参照します。
 
 最初に作成する「ホーム画面」はURIパス一つなので、インタフェースに定義するメソッドも一つです。
 Spring MVC は、アノテーションで指定することが前提であり、使い方のバリエーションは多岐に亘ります。ただし、それでは自由度が高すぎるため、実際のプロジェクトではクラス＆メソッドの定型パターンを定義し、それ従う形をとります。
@@ -81,7 +82,7 @@ public interface HomeController {
 ```
 
 ### 実装クラス
-コントローラインタフェースを実装 (`implements`) します。また、実装クラスにアノテーション `@Controller` を指定することで、Spring MVC が自動的にインスタンス登録します (Java以外に設定ファイルを記述する必要はありません)。
+コントローラインタフェースを実装 (`implements`) します。また、実装クラスにアノテーション`@Controller`を指定することで、Spring MVC が自動的にインスタンス登録します (Java以外に設定ファイルを記述する必要はありません)。
 実装クラスでは、業務ロジックを実行し、表示する画面の名前「ビュー名」を`ModelAndView`に入れて返却します。画面に描画するデータがあればそれも`ModelAndView`に入れますが、ホーム画面には描画するデータがありませんので、何も入れません。
 
 これを踏まえ実装クラスを下記の通り定義します。
@@ -146,20 +147,31 @@ Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの
 
 ## コントローラ
 ### 概観
-ログイン画面では、Spring MVC の下記の2つの技術要素を使用します。
+ログイン画面では、Spring MVC の下記の3つの技術要素を使用します。
 
-*	URIパスが同じでも、リクエストパラメタを変えることで、呼び出されるメソッドを切り替えることができる。
-*	フラッシュスコープを使い、リダイレクト元からリダイレクト先へデータを受渡すことができる。
+*	同一のURIパスに対して、リクエストパラメタによって、呼出されるメソッドを切替える。
+*	リダイレクトする。
+*	リダイレクト元からリダイレクト先へ、フラッシュスコープ(一回こっきり)でデータを受渡す。
 
-#### 呼び出されるメソッドの切替え
-アノテーション `@RequestMapping` の `params` を指定することで、当該メソッドが呼び出される条件にURIパス名にリクエストパラメタを追加することができます。
-典型的には、`@RequestMapping(params = "パラメタ名=パラメタ値")`、`@RequestMapping(params = "パラメタ名")` という指定をします (`values = "URIパス"` も併記できます)。
+#### 呼出されるメソッドを切替える
+アノテーション`@RequestMapping`の`params`を指定することで、当該メソッドが呼出される条件にURIパス名にリクエストパラメタを追加することができます。
+典型的には、`@RequestMapping(params = "パラメタ名=パラメタ値")`、`@RequestMapping(params = "パラメタ名")`という指定をします (既出のURIパス指定も`values = "URIパス"`の形で併用できます)。
 
-昔ながらのフレームワークだと「一つの入力フォームにボタンを複数配置して、どれが押下されたかによってPOST先を切り替える」という制御を実装するには、「クライアントサイドでJavaScriptを使いform要素のonclickでaction属性を書替える」というやり方が使われていました。この制御が不要になります (input要素のボタンでなく、button要素を使います)。
+昔ながらのフレームワークだと「一つの入力フォームにボタンを複数配置して、どれが押下されたかによってPOST先を切り替える」という制御を実装するには、「クライアントサイドでJavaScriptを使いform要素のonclickでaction属性を書替える」というやり方が使われていました。この制御が不要になります。
+なお、「パラメタ名=パラメタ値」を指定することを踏まえ、入力画面に描画するボタンは、input要素(type="submit")ではなく、button要素(name属性とvalue属性を指定)を使用するようにしてください。
 
-#### フラッシュスコープ
-リダイレクト元とリダイレクト先の両方のメソッドの引数に `RedirectAttributes redirAttr` を指定してください。
-リダイレクト元のメソッドで、`redirAttr.addFlashAttribute()` を呼び出すことで、フラッシュスコープにデータを入れます。リダイレクト先のメソッドで、`redirAttr.getFlashAttributes()` を呼び出すことで、フラッシュスコープに入れて受け渡されたデータを取り出すことができます。フラッシュスコープで受け渡されたデータをJSPに渡すには `ModelAndView` の `addAllObjects` で `ModelAndView` にセットします。これらを合わせて、呼出しの典型パターンは `mav.addAllObjects(redirAttr.getFlashAttributes())` です。
+#### リダイレクトする
+リダイレクトする場合も、コントローラのメソッドの返却値は`ModelAndView`です。このインスタンスに`setView(new RedirectView(リダイレクト先URI, true)`の形でリダイレクト先をセットして返却することでリダイレクトされます。また、`RedirectView`コンストラクタの第二引数はリダイレクト先をコンテキストパスからの相対パスで指定するか否かを表し、通常は true を指定します。
+
+リダイレクト先URIは文字列で指定します。URIパスの特定にあたっては、Spring MVC のAPIの`MvcUriComponentsBuilder`の`fromMethodName()`メソッドを使用してください。第1引数にコントローラのインタフェースのクラスオブジェクト(`XxxController.class`)、第2引数にメソッド名(定数定義を参照、本チュートリアルでは`PathDef.METHOD_XXX`)、第3引数以降は可変引数で第2引数に指定したメソッドのシグネチャに合わせて指定してください。
+第3引数以降は、リフレクションでメソッドを特定するための情報です。メソッドを特定できるならばnullを指定しても動作しますが、出来るだけ意味のある引数を渡してください。また、リダイレクト先にパス変数が含まれる場合は、第3引数以降に指定した値を該当箇所に埋込んだ形でURIを形成してくれます。
+
+#### フラッシュスコープでデータを受渡す
+リダイレクト元のメソッドの引数に`RedirectAttributes redirAttr`を指定してください。
+リダイレクト元のメソッドの中で、`redirAttr.addFlashAttribute()`を呼出すことで、フラッシュスコープにデータを入れることができます。
+リダイレクト先のコントローラのメソッドですることは特にありません。メソッドが`ModelAndView`を返却すると、Spring MVCがフラッシュスコープに入っているデータを同`ModelAndView`に入れ直した上でビュー(JSP)に渡されます。
+
+なお、リダイレクト先のメソッドの中でフラッシュスコープで引渡されたデータを参照する場合は、リダイレクト先のメソッドの引数にも`RedirectAttributes redirAttr`を指定してください。`redirAttr.getFlashAttributes()`でフラッシュスコープに入っているデータを参照することが出来ます。
 
 ### インタフェース
 インタフェースは下記の通りです。
@@ -170,7 +182,7 @@ public interface LoginController {
 
 	@RequestMapping()
 	ModelAndView init(Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr);
+			HttpServletRequest request);
 
 	@RequestMapping(params = "loginFailed")
 	ModelAndView loginFailed(Locale locale, SitePreference sitePref,
@@ -192,27 +204,38 @@ public class LoginControllerImpl implements LoginController {
 
 	@Override
 	public ModelAndView init(Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr) {
+			HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_LOGIN);
-		mav.addAllObjects(redirAttr.getFlashAttributes());
 		return mav;
 	}
 
 	@Override
 	public ModelAndView loginFailed(Locale locale, SitePreference sitePref,
 			HttpServletRequest request, RedirectAttributes redirAttr) {
+
 		redirAttr.addFlashAttribute("loginFailed", true);
+
+		UriComponents redirTo = MvcUriComponentsBuilder.fromMethodName(
+				LoginController.class, PathDef.METHOD_INIT, locale, sitePref,
+				request).build();
+
 		ModelAndView mav = new ModelAndView();
-		mav.setView(new RedirectView(PathDef.URI_LOGIN, true));
+		mav.setView(new RedirectView(redirTo.toUriString(), true));
 		return mav;
 	}
 
 	@Override
 	public ModelAndView loggedOut(Locale locale, SitePreference sitePref,
 			HttpServletRequest request, RedirectAttributes redirAttr) {
+
 		redirAttr.addFlashAttribute("loggedOut", true);
+
+		UriComponents redirTo = MvcUriComponentsBuilder.fromMethodName(
+				LoginController.class, PathDef.METHOD_INIT, locale, sitePref,
+				request).build();
+
 		ModelAndView mav = new ModelAndView();
-		mav.setView(new RedirectView(PathDef.URI_LOGIN, true));
+		mav.setView(new RedirectView(redirTo.toUriString(), true));
 		return mav;
 	}
 
@@ -247,5 +270,8 @@ public class LoginControllerImpl implements LoginController {
 	<button class="btn btn-default" type="submit">ログイン</button>
 </form>
 ```
+
+# STEP 03: TODO登録画面を作成する、その1。
+
 
 以上。

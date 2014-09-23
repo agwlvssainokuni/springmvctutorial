@@ -4,7 +4,7 @@ Spring MVCチュートリアル
 # 概要
 *	STEP 00: DBアクセスコードを生成する。
 *	STEP 01: ホーム画面を作成する。
-
+*	STEP 02: ログイン画面を作成する。
 
 
 # STEP 00: DBアクセスコードを生成する。
@@ -112,6 +112,140 @@ Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの
 	<li><a href="<c:url value="/secure/todo/create" />">TODO登録</a></li>
 	<li><a href="<c:url value="/secure/todo/list" />">TODO検索</a></li>
 </ul>
+```
+
+
+# STEP 02: ログイン画面を作成する。
+
+複雑な画面遷移制御をともなう画面の例としてログイン画面を作成します。
+
+## 画面の仕様
+画面の仕様を確認します。ログイン画面は下記の通りです。
+
+*	外部仕様
+	*	URIパス: `/login`
+	*	入力フォーム
+		*	POST先のURIパス: `/login/req`
+		*	ログインIDのパラメタ名: `loginId`
+		*	パスワードのパラメタ名: `password`
+	*	ログイン処理の実態は [Spring Security](http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/)。
+		*	ログイン成功: `/secure/`へリダイレクト。
+		*	ログイン失敗: `/login?loginFailed`へリダイレクト。
+		*	ログアウト: `/login?loggedOut`へリダイレクト
+*	内部仕様
+	*	コントローラ
+		*	インタフェース: `cherry.spring.tutorial.web.login.LoginController`
+		*	実装クラス: `cherry.spring.tutorial.web.login.LoginControllerImpl`
+	*	JSP: `/WEB-INF/tiles/login/init.jsp`
+		*	ビュー名: `login/init`
+	*	ログイン成功/失敗、ログアウトのメッセージ表示
+		*	フラッシュスコープを使用してメッセージを表示する。
+		*	`/login?loginFailed`, `/login?loggedOut`のロジックの中で、フラッシュスコープにデータを入れて、`/login`へリダイレクトする。
+		*	`/login`のロジックの中でフラッシュスコープのデータをJSPに受け渡すようにする。`/login`のJSPの中で受け渡されたデータに応じてメッセージの表示を切り替える。
+		*	`/login`を再表示するとメッセージは再描画されない(フラッシュスコープの特性 = 一回こっきり)。
+
+## コントローラ
+### 概観
+ログイン画面では、Spring MVC の下記の2つの技術要素を使用します。
+
+*	URIパスが同じでも、リクエストパラメタを変えることで、呼び出されるメソッドを切り替えることができる。
+*	フラッシュスコープを使い、リダイレクト元からリダイレクト先へデータを受渡すことができる。
+
+#### 呼び出されるメソッドの切替え
+アノテーション `@RequestMapping` の `params` を指定することで、当該メソッドが呼び出される条件にURIパス名にリクエストパラメタを追加することができます。
+典型的には、`@RequestMapping(params = "パラメタ名=パラメタ値")`、`@RequestMapping(params = "パラメタ名")` という指定をします (`values = "URIパス"` も併記できます)。
+
+昔ながらのフレームワークだと「一つの入力フォームにボタンを複数配置して、どれが押下されたかによってPOST先を切り替える」という制御を実装するには、「クライアントサイドでJavaScriptを使いform要素のonclickでaction属性を書替える」というやり方が使われていました。この制御が不要になります (input要素のボタンでなく、button要素を使います)。
+
+#### フラッシュスコープ
+リダイレクト元とリダイレクト先の両方のメソッドの引数に `RedirectAttributes redirAttr` を指定してください。
+リダイレクト元のメソッドで、`redirAttr.addFlashAttribute()` を呼び出すことで、フラッシュスコープにデータを入れます。リダイレクト先のメソッドで、`redirAttr.getFlashAttributes()` を呼び出すことで、フラッシュスコープに入れて受け渡されたデータを取り出すことができます。フラッシュスコープで受け渡されたデータをJSPに渡すには `ModelAndView` の `addAllObjects` で `ModelAndView` にセットします。これらを合わせて、呼出しの典型パターンは `mav.addAllObjects(redirAttr.getFlashAttributes())` です。
+
+### インタフェース
+インタフェースは下記の通りです。
+
+```Java:LoginController
+@RequestMapping(PathDef.URI_LOGIN)
+public interface LoginController {
+
+	@RequestMapping()
+	ModelAndView init(Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr);
+
+	@RequestMapping(params = "loginFailed")
+	ModelAndView loginFailed(Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr);
+
+	@RequestMapping(params = "loggedOut")
+	ModelAndView loggedOut(Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr);
+
+}
+```
+
+### 実装クラス
+実装クラスは下記の通りです。
+
+```Java:LoginControllerImpl
+@Controller
+public class LoginControllerImpl implements LoginController {
+
+	@Override
+	public ModelAndView init(Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr) {
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_LOGIN);
+		mav.addAllObjects(redirAttr.getFlashAttributes());
+		return mav;
+	}
+
+	@Override
+	public ModelAndView loginFailed(Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr) {
+		redirAttr.addFlashAttribute("loginFailed", true);
+		ModelAndView mav = new ModelAndView();
+		mav.setView(new RedirectView(PathDef.URI_LOGIN, true));
+		return mav;
+	}
+
+	@Override
+	public ModelAndView loggedOut(Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr) {
+		redirAttr.addFlashAttribute("loggedOut", true);
+		ModelAndView mav = new ModelAndView();
+		mav.setView(new RedirectView(PathDef.URI_LOGIN, true));
+		return mav;
+	}
+
+}
+```
+
+## JSP
+ログイン画面のJSPを下記の通り定義します。
+
+```HTML:/WEB-INF/tiles/login/init.jsp
+<h2>ログイン</h2>
+<c:if test="${loginFailed}">
+	<div class="has-error">
+		<div class="help-block">ログインに失敗しました。</div>
+	</div>
+</c:if>
+<c:if test="${loggedOut}">
+	<div class="has-success">
+		<div class="help-block">ログアウトしました。</div>
+	</div>
+</c:if>
+<form id="login" action="<c:url value="/login/req" />" method="POST"
+	role="form">
+	<div class="form-group">
+		<label for="loginId">ログインID</label>
+		<input type="text" id="loginId" name="loginId" class="form-control" />
+	</div>
+	<div class="form-group">
+		<label for="password">パスワード</label>
+		<input type="password" id="password" name="password" class="form-control" />
+	</div>
+	<button class="btn btn-default" type="submit">ログイン</button>
+</form>
 ```
 
 以上。

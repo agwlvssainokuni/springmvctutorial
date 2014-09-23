@@ -18,6 +18,7 @@ CREATE TABLE todo (
 	id			INTEGER		NOT NULL	AUTO_INCREMENT,
 	posted_by	VARCHAR(64)	NOT NULL,
 	posted_at	TIMESTAMP	NOT NULL,
+	due_date	DATE		NOT NULL,
 	done_at		TIMESTAMP,
 	done_flg	INTEGER		NOT NULL	DEFAULT 0,
 	description	VARCHAR(5000)	NOT NULL,

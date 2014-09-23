@@ -75,4 +75,16 @@ public class PathDef {
 	/** URIパス変数名 */
 	public static final String PATH_VAR_ID = "id";
 
+	/** メソッド: 基本 */
+	public static final String METHOD_INIT = "init";
+
+	/** メソッド: 確認 */
+	public static final String METHOD_CONFIRM = "confirm";
+
+	/** メソッド: 実行 */
+	public static final String METHOD_EXECUTE = "exeute";
+
+	/** メソッド: 完了 */
+	public static final String METHOD_FINISH = "finish";
+
 }

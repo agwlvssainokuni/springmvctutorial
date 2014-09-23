@@ -11,11 +11,6 @@
 
 	<context:component-scan base-package="cherry.spring.tutorial" />
 
-	<bean id="navigator" class="cherry.spring.common.helper.navi.NavigatorImpl">
-		<property name="navigationDef" value="classpath:navi.json" />
-		<property name="objectMapper" ref="objectMapper" />
-	</bean>
-
 	<bean id="paginator" class="cherry.spring.common.lib.paginate.PaginatorImpl">
 		<property name="paginateStrategy">
 			<bean class="cherry.spring.common.lib.paginate.TotalCountStrategy">

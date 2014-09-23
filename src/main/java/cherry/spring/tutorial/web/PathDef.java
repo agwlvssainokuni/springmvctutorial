@@ -72,4 +72,7 @@ public class PathDef {
 	/** URIサブパス: 完了 */
 	public static final String SUBURI_FINISH = "finish";
 
+	/** URIパス変数名 */
+	public static final String PATH_VAR_ID = "id";
+
 }

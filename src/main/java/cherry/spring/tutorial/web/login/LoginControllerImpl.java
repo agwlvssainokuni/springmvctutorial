@@ -23,8 +23,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.mobile.device.site.SitePreference;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponents;
 
 import cherry.spring.tutorial.web.PathDef;
 
@@ -33,27 +35,38 @@ public class LoginControllerImpl implements LoginController {
 
 	@Override
 	public ModelAndView init(Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr) {
+			HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_LOGIN);
-		mav.addAllObjects(redirAttr.getFlashAttributes());
 		return mav;
 	}
 
 	@Override
 	public ModelAndView loginFailed(Locale locale, SitePreference sitePref,
 			HttpServletRequest request, RedirectAttributes redirAttr) {
+
 		redirAttr.addFlashAttribute("loginFailed", true);
+
+		UriComponents redirTo = MvcUriComponentsBuilder.fromMethodName(
+				LoginController.class, PathDef.METHOD_INIT, locale, sitePref,
+				request).build();
+
 		ModelAndView mav = new ModelAndView();
-		mav.setView(new RedirectView(PathDef.URI_LOGIN, true));
+		mav.setView(new RedirectView(redirTo.toUriString(), true));
 		return mav;
 	}
 
 	@Override
 	public ModelAndView loggedOut(Locale locale, SitePreference sitePref,
 			HttpServletRequest request, RedirectAttributes redirAttr) {
+
 		redirAttr.addFlashAttribute("loggedOut", true);
+
+		UriComponents redirTo = MvcUriComponentsBuilder.fromMethodName(
+				LoginController.class, PathDef.METHOD_INIT, locale, sitePref,
+				request).build();
+
 		ModelAndView mav = new ModelAndView();
-		mav.setView(new RedirectView(PathDef.URI_LOGIN, true));
+		mav.setView(new RedirectView(redirTo.toUriString(), true));
 		return mav;
 	}
 

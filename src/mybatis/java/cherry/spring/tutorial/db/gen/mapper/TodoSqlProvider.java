@@ -67,6 +67,10 @@ public class TodoSqlProvider {
             VALUES("POSTED_AT", "#{postedAt,jdbcType=TIMESTAMP}");
         }
         
+        if (record.getDueDate() != null) {
+            VALUES("DUE_DATE", "#{dueDate,jdbcType=DATE}");
+        }
+        
         if (record.getDoneAt() != null) {
             VALUES("DONE_AT", "#{doneAt,jdbcType=TIMESTAMP}");
         }
@@ -113,6 +117,7 @@ public class TodoSqlProvider {
         }
         SELECT("POSTED_BY");
         SELECT("POSTED_AT");
+        SELECT("DUE_DATE");
         SELECT("DONE_AT");
         SELECT("DONE_FLG");
         SELECT("DESCRIPTION");
@@ -153,6 +158,10 @@ public class TodoSqlProvider {
         
         if (record.getPostedAt() != null) {
             SET("POSTED_AT = #{record.postedAt,jdbcType=TIMESTAMP}");
+        }
+        
+        if (record.getDueDate() != null) {
+            SET("DUE_DATE = #{record.dueDate,jdbcType=DATE}");
         }
         
         if (record.getDoneAt() != null) {
@@ -200,6 +209,7 @@ public class TodoSqlProvider {
         SET("ID = #{record.id,jdbcType=INTEGER}");
         SET("POSTED_BY = #{record.postedBy,jdbcType=VARCHAR}");
         SET("POSTED_AT = #{record.postedAt,jdbcType=TIMESTAMP}");
+        SET("DUE_DATE = #{record.dueDate,jdbcType=DATE}");
         SET("DONE_AT = #{record.doneAt,jdbcType=TIMESTAMP}");
         SET("DONE_FLG = #{record.doneFlg,jdbcType=INTEGER}");
         SET("DESCRIPTION = #{record.description,jdbcType=VARCHAR}");
@@ -229,6 +239,10 @@ public class TodoSqlProvider {
         
         if (record.getPostedAt() != null) {
             SET("POSTED_AT = #{postedAt,jdbcType=TIMESTAMP}");
+        }
+        
+        if (record.getDueDate() != null) {
+            SET("DUE_DATE = #{dueDate,jdbcType=DATE}");
         }
         
         if (record.getDoneAt() != null) {

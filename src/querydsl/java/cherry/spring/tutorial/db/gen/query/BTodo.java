@@ -18,6 +18,8 @@ public class BTodo {
 
     private Integer doneFlg;
 
+    private org.joda.time.LocalDate dueDate;
+
     private Integer id;
 
     private Integer lockVersion;
@@ -68,6 +70,14 @@ public class BTodo {
         this.doneFlg = doneFlg;
     }
 
+    public org.joda.time.LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(org.joda.time.LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -109,7 +119,7 @@ public class BTodo {
     }
 
     public String toString() {
-         return "createdAt = " + createdAt + ", deletedFlg = " + deletedFlg + ", description = " + description + ", doneAt = " + doneAt + ", doneFlg = " + doneFlg + ", id = " + id + ", lockVersion = " + lockVersion + ", postedAt = " + postedAt + ", postedBy = " + postedBy + ", updatedAt = " + updatedAt;
+         return "createdAt = " + createdAt + ", deletedFlg = " + deletedFlg + ", description = " + description + ", doneAt = " + doneAt + ", doneFlg = " + doneFlg + ", dueDate = " + dueDate + ", id = " + id + ", lockVersion = " + lockVersion + ", postedAt = " + postedAt + ", postedBy = " + postedBy + ", updatedAt = " + updatedAt;
     }
 
 }

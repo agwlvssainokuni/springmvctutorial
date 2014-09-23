@@ -4,6 +4,7 @@ import cherry.spring.common.custom.DeletedFlag;
 import cherry.spring.common.custom.FlagCode;
 import java.util.ArrayList;
 import java.util.List;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
 public class TodoCriteria {
@@ -384,6 +385,66 @@ public class TodoCriteria {
 
         public Criteria andPostedAtNotBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("POSTED_AT not between", value1, value2, "postedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateIsNull() {
+            addCriterion("DUE_DATE is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateIsNotNull() {
+            addCriterion("DUE_DATE is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateEqualTo(LocalDate value) {
+            addCriterion("DUE_DATE =", value, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateNotEqualTo(LocalDate value) {
+            addCriterion("DUE_DATE <>", value, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateGreaterThan(LocalDate value) {
+            addCriterion("DUE_DATE >", value, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateGreaterThanOrEqualTo(LocalDate value) {
+            addCriterion("DUE_DATE >=", value, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateLessThan(LocalDate value) {
+            addCriterion("DUE_DATE <", value, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateLessThanOrEqualTo(LocalDate value) {
+            addCriterion("DUE_DATE <=", value, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateIn(List<LocalDate> values) {
+            addCriterion("DUE_DATE in", values, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateNotIn(List<LocalDate> values) {
+            addCriterion("DUE_DATE not in", values, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateBetween(LocalDate value1, LocalDate value2) {
+            addCriterion("DUE_DATE between", value1, value2, "dueDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDueDateNotBetween(LocalDate value1, LocalDate value2) {
+            addCriterion("DUE_DATE not between", value1, value2, "dueDate");
             return (Criteria) this;
         }
 

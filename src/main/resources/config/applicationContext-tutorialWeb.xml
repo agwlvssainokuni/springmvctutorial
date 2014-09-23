@@ -15,8 +15,6 @@
 
 	<security:http auto-config="false"
 		authentication-manager-ref="authenticationManager">
-		<security:intercept-url pattern="/secure/**"
-			access="IS_AUTHENTICATED_FULLY" />
 		<security:form-login login-page="/login"
 			login-processing-url="/login/req" authentication-failure-url="/login?loginFailed"
 			default-target-url="/secure/" always-use-default-target="false"

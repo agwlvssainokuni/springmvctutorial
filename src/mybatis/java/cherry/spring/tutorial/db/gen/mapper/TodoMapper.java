@@ -57,15 +57,15 @@ public interface TodoMapper {
      */
     @Insert({
         "insert into TODO (POSTED_BY, POSTED_AT, ",
-        "DONE_AT, DONE_FLG, ",
-        "DESCRIPTION, UPDATED_AT, ",
-        "CREATED_AT, LOCK_VERSION, ",
-        "DELETED_FLG)",
+        "DUE_DATE, DONE_AT, ",
+        "DONE_FLG, DESCRIPTION, ",
+        "UPDATED_AT, CREATED_AT, ",
+        "LOCK_VERSION, DELETED_FLG)",
         "values (#{postedBy,jdbcType=VARCHAR}, #{postedAt,jdbcType=TIMESTAMP}, ",
-        "#{doneAt,jdbcType=TIMESTAMP}, #{doneFlg,jdbcType=INTEGER}, ",
-        "#{description,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP}, ",
-        "#{createdAt,jdbcType=TIMESTAMP}, #{lockVersion,jdbcType=INTEGER}, ",
-        "#{deletedFlg,jdbcType=INTEGER})"
+        "#{dueDate,jdbcType=DATE}, #{doneAt,jdbcType=TIMESTAMP}, ",
+        "#{doneFlg,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, ",
+        "#{updatedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, ",
+        "#{lockVersion,jdbcType=INTEGER}, #{deletedFlg,jdbcType=INTEGER})"
     })
     @Options(useGeneratedKeys=true,keyProperty="id")
     int insert(Todo record);
@@ -91,6 +91,7 @@ public interface TodoMapper {
         @Result(column="ID", property="id", jdbcType=JdbcType.INTEGER, id=true),
         @Result(column="POSTED_BY", property="postedBy", jdbcType=JdbcType.VARCHAR),
         @Result(column="POSTED_AT", property="postedAt", jdbcType=JdbcType.TIMESTAMP),
+        @Result(column="DUE_DATE", property="dueDate", jdbcType=JdbcType.DATE),
         @Result(column="DONE_AT", property="doneAt", jdbcType=JdbcType.TIMESTAMP),
         @Result(column="DONE_FLG", property="doneFlg", jdbcType=JdbcType.INTEGER),
         @Result(column="DESCRIPTION", property="description", jdbcType=JdbcType.VARCHAR),
@@ -112,6 +113,7 @@ public interface TodoMapper {
         @Result(column="ID", property="id", jdbcType=JdbcType.INTEGER, id=true),
         @Result(column="POSTED_BY", property="postedBy", jdbcType=JdbcType.VARCHAR),
         @Result(column="POSTED_AT", property="postedAt", jdbcType=JdbcType.TIMESTAMP),
+        @Result(column="DUE_DATE", property="dueDate", jdbcType=JdbcType.DATE),
         @Result(column="DONE_AT", property="doneAt", jdbcType=JdbcType.TIMESTAMP),
         @Result(column="DONE_FLG", property="doneFlg", jdbcType=JdbcType.INTEGER),
         @Result(column="DESCRIPTION", property="description", jdbcType=JdbcType.VARCHAR),
@@ -130,8 +132,8 @@ public interface TodoMapper {
      */
     @Select({
         "select",
-        "ID, POSTED_BY, POSTED_AT, DONE_AT, DONE_FLG, DESCRIPTION, UPDATED_AT, CREATED_AT, ",
-        "LOCK_VERSION, DELETED_FLG",
+        "ID, POSTED_BY, POSTED_AT, DUE_DATE, DONE_AT, DONE_FLG, DESCRIPTION, UPDATED_AT, ",
+        "CREATED_AT, LOCK_VERSION, DELETED_FLG",
         "from TODO",
         "where ID = #{id,jdbcType=INTEGER}"
     })
@@ -139,6 +141,7 @@ public interface TodoMapper {
         @Result(column="ID", property="id", jdbcType=JdbcType.INTEGER, id=true),
         @Result(column="POSTED_BY", property="postedBy", jdbcType=JdbcType.VARCHAR),
         @Result(column="POSTED_AT", property="postedAt", jdbcType=JdbcType.TIMESTAMP),
+        @Result(column="DUE_DATE", property="dueDate", jdbcType=JdbcType.DATE),
         @Result(column="DONE_AT", property="doneAt", jdbcType=JdbcType.TIMESTAMP),
         @Result(column="DONE_FLG", property="doneFlg", jdbcType=JdbcType.INTEGER),
         @Result(column="DESCRIPTION", property="description", jdbcType=JdbcType.VARCHAR),
@@ -186,6 +189,7 @@ public interface TodoMapper {
         "update TODO",
         "set POSTED_BY = #{postedBy,jdbcType=VARCHAR},",
           "POSTED_AT = #{postedAt,jdbcType=TIMESTAMP},",
+          "DUE_DATE = #{dueDate,jdbcType=DATE},",
           "DONE_AT = #{doneAt,jdbcType=TIMESTAMP},",
           "DONE_FLG = #{doneFlg,jdbcType=INTEGER},",
           "DESCRIPTION = #{description,jdbcType=VARCHAR},",

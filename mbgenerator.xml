@@ -46,6 +46,7 @@
 		<table tableName="todo">
 			<generatedKey column="id" sqlStatement="JDBC" />
 			<columnOverride column="posted_at" javaType="org.joda.time.LocalDateTime" />
+			<columnOverride column="due_date" javaType="org.joda.time.LocalDate" />
 			<columnOverride column="done_at" javaType="org.joda.time.LocalDateTime" />
 			<columnOverride column="done_flg"
 				javaType="cherry.spring.common.custom.FlagCode" />

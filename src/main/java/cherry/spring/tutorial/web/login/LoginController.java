@@ -32,7 +32,7 @@ public interface LoginController {
 
 	@RequestMapping()
 	ModelAndView init(Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr);
+			HttpServletRequest request);
 
 	@RequestMapping(params = "loginFailed")
 	ModelAndView loginFailed(Locale locale, SitePreference sitePref,

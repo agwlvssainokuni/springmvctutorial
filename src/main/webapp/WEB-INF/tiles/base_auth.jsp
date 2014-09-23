@@ -8,24 +8,37 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<meta name="viewport"
-	content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-<title>Spring MVCチュートリアル</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sprint MVCチュートリアル</title>
+<link rel="stylesheet" media="screen"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" />
+<link rel="stylesheet" media="screen"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 <link rel="stylesheet" media="screen"
 	href="<c:url value="/style/general.css"/>" />
 <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <script type="text/javascript"
 	src="<c:url value="/script/general.js" />"></script>
 </head>
 <body>
-	<div>
-		<form action="<c:url value="/logout" />" method="POST">
-			<button type="submit">ログアウト</button>
-			<input type="hidden" name="${_csrf.parameterName}"
-				value="${_csrf.token}">
-		</form>
+	<div class="container">
+		<div class="nav navbar-header">
+			<div class="navbar-brand">Spring MVCチュートリアル</div>
+		</div>
+		<ul class="nav navbar-nav navbar-right">
+			<li><a href="<c:url value="/logout" />"
+				onclick="JavaScript:$('#logout').submit(); return false;"><span
+					class="glyphicon glyphicon-off"></span> ログアウト</a>
+				<form action="<c:url value="/logout" />" method="POST" id="logout">
+					<input type="hidden" name="${_csrf.parameterName}"
+						value="${_csrf.token}">
+				</form></li>
+		</ul>
 	</div>
-	<div>
+	<div class="container" role="main">
 		<tiles:insertAttribute name="content" />
 	</div>
 </body>

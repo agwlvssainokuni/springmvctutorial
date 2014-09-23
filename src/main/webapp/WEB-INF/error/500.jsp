@@ -21,10 +21,12 @@
 	src="<c:url value="/script/general.js" />"></script>
 </head>
 <body>
-	<div>
-		<h1>Spring MVCチュートリアル</h1>
+	<div class="container">
+		<div class="nav navbar-header">
+			<div class="navbar-brand">Spring MVCチュートリアル</div>
+		</div>
 	</div>
-	<div>
+	<div class="container" role="main">
 		<p>HTTPステータスコード 500: システムエラーが発生しました。</p>
 	</div>
 </body>

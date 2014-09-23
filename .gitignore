@@ -1,0 +1,21 @@
+# Gradle
+.gradle
+build/
+gradle.properties
+
+# Eclipse
+bin/
+.classpath
+.project
+.settings/
+.springBeans
+
+# Maven
+target/
+
+# misc
+.DS_Store
+*~
+*.swp
+*.zip
+*.tgz

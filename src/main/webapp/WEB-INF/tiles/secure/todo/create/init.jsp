@@ -9,4 +9,4 @@
 	uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles"%>
 <h2>TODO登録</h2>
-<p>init</p>
+<p>入力画面</p>

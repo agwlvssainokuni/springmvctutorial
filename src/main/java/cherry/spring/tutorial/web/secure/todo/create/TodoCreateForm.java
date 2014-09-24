@@ -23,8 +23,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import org.joda.time.LocalDate;
-
 @Setter
 @Getter
 @EqualsAndHashCode
@@ -32,9 +30,5 @@ import org.joda.time.LocalDate;
 public class TodoCreateForm implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	private LocalDate dueDate;
-
-	private String description;
 
 }

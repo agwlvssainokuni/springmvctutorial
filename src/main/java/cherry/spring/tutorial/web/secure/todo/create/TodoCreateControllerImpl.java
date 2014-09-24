@@ -25,10 +25,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import cherry.spring.tutorial.web.PathDef;
 
@@ -72,13 +72,14 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 			return mav;
 		}
 
-		Integer id = 0; // 主処理をエミュレート
+		Integer id = 0; // TODO To be implemented later.
 
 		redirAttr.addFlashAttribute(PathDef.PATH_VAR_ID, id);
 
-		UriComponents uc = UriComponentsBuilder
-				.fromPath(PathDef.URI_TODO_CREATE)
-				.pathSegment(PathDef.SUBURI_FINISH).build();
+		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
+				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
+				locale, sitePref, request, redirAttr).build();
+
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
 		return mav;
@@ -89,7 +90,6 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 			SitePreference sitePref, HttpServletRequest request,
 			RedirectAttributes redirAttr) {
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_FINISH);
-		mav.addAllObjects(redirAttr.getFlashAttributes());
 		return mav;
 	}
 

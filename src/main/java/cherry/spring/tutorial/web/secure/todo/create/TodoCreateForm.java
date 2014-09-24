@@ -18,10 +18,18 @@ package cherry.spring.tutorial.web.secure.todo.create;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotNull;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.LocalDate;
+
+import cherry.spring.common.custom.format.CustomDateTimeFormat;
+import cherry.spring.common.validator.MaxLength;
 
 @Setter
 @Getter
@@ -30,5 +38,13 @@ import lombok.ToString;
 public class TodoCreateForm implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	@NotNull
+	@CustomDateTimeFormat()
+	private LocalDate dueDate;
+
+	@NotEmpty
+	@MaxLength(5000)
+	private String description;
 
 }

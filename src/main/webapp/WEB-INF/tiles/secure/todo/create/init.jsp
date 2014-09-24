@@ -9,6 +9,16 @@
 	uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles"%>
 <h2>TODO登録</h2>
+<s:hasBindErrors name="todoCreateForm">
+	<div class="form-group has-error">
+		<div class="help-block bg-danger">
+			<s:nestedPath path="todoCreateForm">
+				<f:errors path="dueDate" element="div" />
+				<f:errors path="description" element="div" />
+			</s:nestedPath>
+		</div>
+	</div>
+</s:hasBindErrors>
 <f:form servletRelativeAction="/secure/todo/create/confirm"
 	method="POST" modelAttribute="todoCreateForm" role="form">
 	<div class="form-group">

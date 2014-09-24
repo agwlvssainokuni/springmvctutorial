@@ -10,7 +10,7 @@ Spring MVCチュートリアル
 
 # STEP 00: DBアクセスコードを生成する。
 
-DBアクセスにあたっては [MyBatis](http://mybatis.github.io/mybatis-3/ "MyBatis") をメインとして使用します。動的に条件を組立てるSQLを発行するケースでは [Querydsl](http://www.querydsl.com "Querydsl") (特に [Querydsl SQL](https://github.com/querydsl/querydsl/tree/master/querydsl-sql "Querydsl SQL") ) を使用します。
+DBアクセスにあたっては [MyBatis](http://mybatis.github.io/mybatis-3/ "MyBatis") をメインとして使用します。動的に条件を組立てるSQLを発行するケースでは [Querydsl](http://www.querydsl.com "Querydsl") (特に [Querydsl SQL](https://github.com/querydsl/querydsl/tree/master/querydsl-sql "Querydsl SQL")) を使用します。
 なお、DBアクセス用にコード生成ツールの [MyBatis Generator](http://mybatis.github.io/generator/ "MyBatis Generator") と [Querydsl codegen](https://github.com/querydsl/codegen "Querydsl codegen") を使用します。
 
 ```bash:コマンドライン
@@ -35,8 +35,7 @@ $ mvn querydsl:export
 	*	コントローラ
 		*	インタフェース: `cherry.spring.tutorial.web.secure.home.HomeController`
 		*	実装クラス: `cherry.spring.tutorial.web.secure.home.HomeControllerImpl`
-	*	JSP: `/WEB-INF/tiles/secure/home/init.jsp`
-		*	ビュー名: `secure/home/init`
+	*	JSP: `/WEB-INF/tiles/secure/home/init.jsp` (ビュー名: `secure/home/init`)
 
 ## コントローラ
 ### インタフェース
@@ -68,7 +67,7 @@ Spring MVC は、アノテーションで指定することが前提であり、
 		*	`RedirectAttributes redirAttr`
 *	返却値: `ModelAndView`
 
-これに基づきインタフェースを下記の通り定義します (`package`や`import`は省略しています)。
+これに基づきインタフェースを下記の通り定義します。なお、`package`や`import`は省略しています(以下同様)。
 
 ```Java:HomeController
 @RequestMapping(PathDef.URI_HOME)
@@ -102,7 +101,7 @@ public class HomeControllerImpl implements HomeController {
 ```
 
 ## JSP
-Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの記法でOKです。JSP, EL, [JSTL 1.2](https://jstl.java.net "JSTL 1.2"), Spring Tag, Spring Form Tag, Spring Security Tag が使えます。
+Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの記法でOKです。JSP, EL, [JSTL 1.2](https://jstl.java.net "JSTL 1.2"), [Spring Tag](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring.tld.html "Spring Tag"), [Spring Form Tag](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-form.tld.html "Spring Form Tag"), [Spring Security Tag](http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#taglibs "Spring Security Tag") が使えます。
 また、本チュートリアルでは[Apache Tiles3](https://tiles.apache.org "Apache Tiles3")を使っています。実際に記述するJSPはbody要素の中身(のコンテンツ領域)のみです。
 
 ホーム画面のJSPを下記の通り定義します。(下記の`c:`は JSTL の Core Tag Library です)
@@ -129,7 +128,7 @@ Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの
 		*	POST先のURIパス: `/login/req`
 		*	ログインIDのパラメタ名: `loginId`
 		*	パスワードのパラメタ名: `password`
-	*	ログイン処理の実態は [Spring Security](http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/)。
+	*	ログイン処理の実態は [Spring Security](http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/ "Spring Security")。
 		*	ログイン成功: `/secure/`へリダイレクト。
 		*	ログイン失敗: `/login?loginFailed`へリダイレクト。
 		*	ログアウト: `/login?loggedOut`へリダイレクト
@@ -137,8 +136,7 @@ Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの
 	*	コントローラ
 		*	インタフェース: `cherry.spring.tutorial.web.login.LoginController`
 		*	実装クラス: `cherry.spring.tutorial.web.login.LoginControllerImpl`
-	*	JSP: `/WEB-INF/tiles/login/init.jsp`
-		*	ビュー名: `login/init`
+	*	JSP: `/WEB-INF/tiles/login/init.jsp` (ビュー名: `login/init`)
 	*	ログイン成功/失敗、ログアウトのメッセージ表示
 		*	フラッシュスコープを使用してメッセージを表示する。
 		*	`/login?loginFailed`, `/login?loggedOut`のロジックの中で、フラッシュスコープにデータを入れて、`/login`へリダイレクトする。
@@ -273,5 +271,173 @@ public class LoginControllerImpl implements LoginController {
 
 # STEP 03: TODO登録画面を作成する、その1。
 
+いよいよ入力フォームを持つ画面を作成します。作成すものは、これまでと同様の「コントローラ」と「JSP」に加え、入力値を保持する「フォーム」です。
+
+## 画面の仕様
+
+画面の仕様を確認します。TODO登録は、「入力画面」「確認画面」「完了画面」
+
+*	外部仕様
+	*	入力画面
+		*	URIパス: `/secure/todo/create`
+		*	入力フォーム
+			*	TODOの期日のパラメタ名: `dueDate`
+			*	TODOの内容のパラメタ名: `description`
+		*	「確認」ボタンを押下すると、「確認画面」へ遷移する。
+	*	確認画面
+		*	URIパス: `/secure/todo/create/confirm`
+		*	表示項目: 「入力画面」で入力された値
+		*	「登録」ボタンを押下すると、「登録処理」へPOSTする。
+	*	登録処理
+		*	URIパス: `/secure/todo/create/execute`
+		*	POSTされた値をDBに登録し、「完了画面」へHTTPリダイレクトする(画面遷移する)。
+	*	完了画面
+		*	URIパス: `/secure/todo/create/confirm`
+		*	表示項目: 「登録処理」で登録したTODOの内容
+			*	TODOの期日 (入力値)
+			*	TODOの内容 (入力値)
+			*	TODO番号 (登録処理で発行された主キー)
+			*	登録日時 (登録処理を実施した業務日時)
+*	内部仕様
+	*	共通
+		*	フォーム: `cherry.spring.tutorial.web.secure.todo.create.TodoCreateForm`
+		*	コントローラ
+			*	インタフェース: `cherry.spring.tutorial.web.secure.todo.create.TodoCreateController`
+			*	実装クラス: `cherry.spring.tutorial.web.secure.todo.create.TodoCreateControllerImpl`
+	*	入力画面
+		*	メソッド: `init`
+		*	JSP: `/WEB-INF/tiles/secure/todo/create/init.jsp` (ビュー名: `secure/todo/create/init`)
+		*	処理
+	*	確認画面
+		*	メソッド: `confirm`
+		*	JSP: `/WEB-INF/tiles/secure/todo/create/confirm.jsp` (ビュー名: `secure/todo/create/confirm`)
+	*	登録処理
+		*	メソッド: `execute`
+		*	完了画面へHTTPリダイレクトする。
+	*	完了画面
+		*	メソッド: `finish`
+		*	JSP: `/WEB-INF/tiles/secure/todo/create/finish.jsp` (ビュー名: `secure/todo/create/finish`)
+
+
+```Java:TodoCreateForm
+@Setter
+@Getter
+@EqualsAndHashCode
+@ToString
+public class TodoCreateForm implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+}
+```
+
+```Java:TodoCreateController
+@RequestMapping(PathDef.URI_TODO_CREATE)
+public interface TodoCreateController {
+
+	@ModelAttribute()
+	TodoCreateForm getForm();
+
+	@RequestMapping()
+	ModelAndView init(Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request);
+
+	@RequestMapping(PathDef.SUBURI_CONFIRM)
+	ModelAndView confirm(@Validated TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request);
+
+	@RequestMapping(PathDef.SUBURI_EXECUTE)
+	ModelAndView execute(@Validated TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr);
+
+	@RequestMapping(PathDef.SUBURI_FINISH)
+	ModelAndView finish(Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request,
+			RedirectAttributes redirAttr);
+
+}
+```
+
+```Java:TodoCreateControllerImpl
+@Controller
+public class TodoCreateControllerImpl implements TodoCreateController {
+
+	@Override
+	public TodoCreateForm getForm() {
+		TodoCreateForm form = new TodoCreateForm();
+		return form;
+	}
+
+	@Override
+	public ModelAndView init(Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+		return mav;
+	}
+
+	@Override
+	public ModelAndView confirm(TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_CONFIRM);
+		return mav;
+	}
+
+	@Override
+	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
+		Integer id = 0; // TODO To be implemented later.
+
+		redirAttr.addFlashAttribute(PathDef.PATH_VAR_ID, id);
+
+		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
+				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
+				locale, sitePref, request, redirAttr).build();
+
+		ModelAndView mav = new ModelAndView();
+		mav.setView(new RedirectView(uc.toUriString(), true));
+		return mav;
+	}
+
+	@Override
+	public ModelAndView finish(Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request,
+			RedirectAttributes redirAttr) {
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_FINISH);
+		return mav;
+	}
+
+}
+```
+
+```HTML:/WEB-INF/tiles/secure/todo/create/init.jsp
+<h2>TODO登録</h2>
+<p>init</p>
+```
+
+```HTML:/WEB-INF/tiles/secure/todo/create/confirm.jsp
+<h2>TODO登録</h2>
+<p>confirm</p>
+```
+
+```HTML:/WEB-INF/tiles/secure/todo/create/finish.jsp
+<h2>TODO登録</h2>
+<p>finish</p>
+```
 
 以上。

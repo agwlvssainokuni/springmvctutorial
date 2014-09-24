@@ -52,6 +52,12 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	public ModelAndView confirm(TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_CONFIRM);
 		return mav;
 	}
@@ -60,6 +66,11 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request, RedirectAttributes redirAttr) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
 				TodoCreateController.class, PathDef.METHOD_FINISH, auth,

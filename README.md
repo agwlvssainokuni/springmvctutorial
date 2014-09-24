@@ -275,7 +275,7 @@ public class LoginControllerImpl implements LoginController {
 
 ## 画面の仕様
 
-画面の仕様を確認します。TODO登録は、「入力画面」「確認画面」「完了画面」
+画面の仕様を確認します。TODO登録は、「入力画面」「確認画面」「登録処理」「完了画面」の順に遷移する形で動作します。
 
 *	外部仕様
 	*	入力画面
@@ -306,18 +306,74 @@ public class LoginControllerImpl implements LoginController {
 			*	実装クラス: `cherry.spring.tutorial.web.secure.todo.create.TodoCreateControllerImpl`
 	*	入力画面
 		*	メソッド: `init`
+			*	`ModelAndView`を作りビュー名を設定する。
+			*	`ModelAndView`を返却する。
 		*	JSP: `/WEB-INF/tiles/secure/todo/create/init.jsp` (ビュー名: `secure/todo/create/init`)
-		*	処理
 	*	確認画面
 		*	メソッド: `confirm`
+			*	引数として受渡されたフォームとバインド結果から入力値の妥当性を検証する。
+			*	`ModelAndView`を作りビュー名を設定する。
+			*	`ModelAndView`を返却する。
 		*	JSP: `/WEB-INF/tiles/secure/todo/create/confirm.jsp` (ビュー名: `secure/todo/create/confirm`)
 	*	登録処理
 		*	メソッド: `execute`
+			*	引数として受渡されたフォームとバインド結果から入力値の妥当性を検証する。
+			*	入力値をフォームから取得し、DBにTODOレコードを作成する。
+			*	作成したレコードの主キー(id)をフラッシュスコープに保管する。
+			*	`ModelAndView`を作りリダイレクト先のURIパスを設定する。
+			*	形成した`ModelAndView`を返却する。
 		*	完了画面へHTTPリダイレクトする。
 	*	完了画面
 		*	メソッド: `finish`
+			*	フラッシュスコープに保管された主キー(id)を取出し、該当するTODOレコードをDB照会する。
+			*	`ModelAndView`を作りビュー名を設定する。また、`ModelAndView`にTODOレコードを設定する。
+			*	形成した`ModelAndView`を返却する。
 		*	JSP: `/WEB-INF/tiles/secure/todo/create/finish.jsp` (ビュー名: `secure/todo/create/finish`)
 
+## コントローラのメソッドの基本構成
+コントローラのメソッドは原則として下記の構成をとるようにしてください。なお、処理の内容に用事て実施しないこともあり得ます。上記に記述したメソッドの内部仕様もこれに則っています。
+
+*	入力値の妥当性を検証する。
+	*	単項目チェック (入力値の字面上の様式をチェックする)。
+	*	項目間チェック (複数項目に亘る依存性に基づいて入力値をチェックする)。
+	*	データ整合性チェック (マスタテーブル、区分値、設定値との整合性をチェックする)。
+*	主たる業務ロジックを実行する。
+	*	DBの照会や更新処理 (CRUD)。
+	*	メッセージキューの操作 (非同期処理を実行登録)。
+	*	フラッシュスコープにデータをセットする。
+	*	フラッシュスコープからデータを取出す。
+*	返却値を形成する。
+	*	`ModelAndView`を形成する。
+	*	ビュー名を設定する。
+	*	リダイレクト先のURIパスを設定する。
+	*	JSPに表示するデータをセットする。
+*	返却値を返却する。
+
+
+## 実装の仕方
+
+何をやっているかを理解しながら進めることを意図し、少しずつ順を追って実装していきます。
+下記の7つの段階に分けて進めていきます。
+
+*	基本的な画面遷移を実装する。
+*	フォーム(Java)にプロパティと妥当性検証ルールを実装する。
+*	画面に入力フォーム(form要素)を実装する。
+*	妥当性検証NGの場合の画面遷移パターンを実装する。
+*	妥当性検証NGの場合のメッセージ表示を画面に実装する。
+*	TODO登録画面の主たる業務ロジックである「DBにTODOレコードを作成する」を実装する。
+*	作成したTODOレコードの内容を完了画面に表示する。
+
+
+## フォーム
+
+STEP 03では「基本的な画面遷移を実装する」こととします。
+
+フォームについてはSTEP 03では枠のみ実装します。フォームの中身はSTEP 04で実装します。
+なお、フォームクラスは設計書から生成しやすい部位ですので、実プロジェクトではコード生成されることが多いです。
+
+フォームのコードは下記の通りです。
+フォームは単純なBeanですので[Lombok](http://projectlombok.org "Lombok")を適用しやすいです。本チュートリアルでも使用します(クラスに付与した4つのアノテーションがそれです)。
+また、フォームはセッションに格納することもあるので、シリアライザブルを実装 (`implements`) します。
 
 ```Java:TodoCreateForm
 @Setter
@@ -330,6 +386,19 @@ public class TodoCreateForm implements Serializable {
 
 }
 ```
+
+
+## コントローラ
+### インタフェース
+TODO登録画面に洗われる「入力画面」「確認画面」「登録処理」「完了画面」の4つに対応するメソッドを定義します。
+また、入力フォームを初めて表示する時の初期値を明示するために、アノテーション`@ModelAttribute()`を指定したメソッドを定義します。
+
+画面からの入力を受取るメソッドには引数としてフォーム (`TodoCreateForm form`) を受取るようにしてください。さらに、下記のように構成してください。これにより入力値を検証 (単項目チェック) できるようになります。
+
+*	アノテーション`@Validated`を付与する。
+*	直後の引数として`BindingResult binding`を受取るようにする。
+
+これを踏まえ、インタフェースのコードは下記の通りです。
 
 ```Java:TodoCreateController
 @RequestMapping(PathDef.URI_TODO_CREATE)
@@ -360,6 +429,11 @@ public interface TodoCreateController {
 }
 ```
 
+### 実装クラス
+「基本的な画面遷移」ということで、画面の表示とリダイレクトのみを実装します。
+
+実装クラスのコードは下記の通りです。
+
 ```Java:TodoCreateControllerImpl
 @Controller
 public class TodoCreateControllerImpl implements TodoCreateController {
@@ -381,12 +455,6 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	public ModelAndView confirm(TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request) {
-
-		if (binding.hasErrors()) {
-			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
-			return mav;
-		}
-
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_CONFIRM);
 		return mav;
 	}
@@ -395,15 +463,6 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request, RedirectAttributes redirAttr) {
-
-		if (binding.hasErrors()) {
-			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
-			return mav;
-		}
-
-		Integer id = 0; // TODO To be implemented later.
-
-		redirAttr.addFlashAttribute(PathDef.PATH_VAR_ID, id);
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
 				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
@@ -425,19 +484,24 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 }
 ```
 
+## JSP
+「入力画面」「確認画面」「完了画面」のJSPを定義します。STEP 03では最小限にとどめます(どの画面か分かるように名前を記述しておきますが、後で実装する時に置き換えます)。
+
+JSPのコードは下記の通りです。
+
 ```HTML:/WEB-INF/tiles/secure/todo/create/init.jsp
 <h2>TODO登録</h2>
-<p>init</p>
+<p>入力画面</p>
 ```
 
 ```HTML:/WEB-INF/tiles/secure/todo/create/confirm.jsp
 <h2>TODO登録</h2>
-<p>confirm</p>
+<p>確認画面</p>
 ```
 
 ```HTML:/WEB-INF/tiles/secure/todo/create/finish.jsp
 <h2>TODO登録</h2>
-<p>finish</p>
+<p>完了画面</p>
 ```
 
 以上。

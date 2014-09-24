@@ -9,4 +9,19 @@
 	uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles"%>
 <h2>TODO登録</h2>
-<p>確認画面</p>
+<s:nestedPath path="todoCreateForm">
+	<div class="form-group">
+		<label for="dueDate">期日</label>
+		<f:input path="dueDate" cssClass="form-control" readonly="true" />
+	</div>
+	<div class="form-group">
+		<label for="description">内容</label>
+		<f:textarea path="description" cssClass="form-control" readonly="true" />
+	</div>
+</s:nestedPath>
+<f:form servletRelativeAction="/secure/todo/create/execute"
+	method="POST" modelAttribute="todoCreateForm" id="todoCreateFormHidden">
+	<f:hidden path="dueDate" id="dueDateHidden" />
+	<f:hidden path="description" id="descriptionHidden" />
+	<f:button type="submit" class="btn btn-default">登録</f:button>
+</f:form>

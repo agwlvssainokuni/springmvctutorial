@@ -393,7 +393,12 @@ public class TodoCreateForm implements Serializable {
 TODO登録画面に洗われる「入力画面」「確認画面」「登録処理」「完了画面」の4つに対応するメソッドを定義します。
 また、入力フォームを初めて表示する時の初期値を明示するために、アノテーション`@ModelAttribute()`を指定したメソッドを定義します。
 
-インタフェースのコードは下記の通りです。
+画面からの入力を受取るメソッドには引数としてフォーム (`TodoCreateForm form`) を受取るようにしてください。さらに、下記のように構成してください。これにより入力値を検証 (単項目チェック) できるようになります。
+
+*	アノテーション`@Validated`を付与する。
+*	直後の引数として`BindingResult binding`を受取るようにする。
+
+これを踏まえ、インタフェースのコードは下記の通りです。
 
 ```Java:TodoCreateController
 @RequestMapping(PathDef.URI_TODO_CREATE)

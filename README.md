@@ -574,12 +574,12 @@ STEP 05では「画面に入力フォーム(form要素)を実装」します。
 <f:form servletRelativeAction="/secure/todo/create/confirm"
 	method="POST" modelAttribute="todoCreateForm" role="form">
 	<div class="form-group">
-		<label for="dueDate">期日</label>
+		<f:label path="dueDate" cssErrorClass="has-error">期日</f:label>
 		<f:input path="dueDate" cssClass="form-control"
 			cssErrorClass="form-control has-error" />
 	</div>
 	<div class="form-group">
-		<label for="description">内容</label>
+		<f:label path="description" cssErrorClass="has-error">内容</f:label>
 		<f:textarea path="description" cssClass="form-control"
 			cssErrorClass="form-control has-error" />
 	</div>
@@ -675,12 +675,12 @@ STEP 07では「妥当性検証NGの場合のメッセージ表示を画面に�
 <f:form servletRelativeAction="/secure/todo/create/confirm"
 	method="POST" modelAttribute="todoCreateForm" role="form">
 	<div class="form-group">
-		<label for="dueDate">期日</label>
+		<f:label path="dueDate" cssErrorClass="has-error">期日</f:label>
 		<f:input path="dueDate" cssClass="form-control"
 			cssErrorClass="form-control has-error" />
 	</div>
 	<div class="form-group">
-		<label for="description">内容</label>
+		<f:label path="description" cssErrorClass="has-error">内容</f:label>
 		<f:textarea path="description" cssClass="form-control"
 			cssErrorClass="form-control has-error" />
 	</div>

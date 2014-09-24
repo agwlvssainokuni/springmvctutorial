@@ -22,12 +22,12 @@
 <f:form servletRelativeAction="/secure/todo/create/confirm"
 	method="POST" modelAttribute="todoCreateForm" role="form">
 	<div class="form-group">
-		<label for="dueDate">期日</label>
+		<f:label path="dueDate" cssErrorClass="has-error">期日</f:label>
 		<f:input path="dueDate" cssClass="form-control"
 			cssErrorClass="form-control has-error" />
 	</div>
 	<div class="form-group">
-		<label for="description">内容</label>
+		<f:label path="description" cssErrorClass="has-error">内容</f:label>
 		<f:textarea path="description" cssClass="form-control"
 			cssErrorClass="form-control has-error" />
 	</div>

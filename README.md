@@ -6,6 +6,12 @@ Spring MVCチュートリアル
 *	STEP 01: ホーム画面を作成する。
 *	STEP 02: ログイン画面を作成する。
 *	STEP 03: TODO登録画面を作成する、その1。
+*	STEP 04: TODO登録画面を作成する、その2。
+*	STEP 05: TODO登録画面を作成する、その3。
+*	STEP 06: TODO登録画面を作成する、その4。
+*	STEP 07: TODO登録画面を作成する、その5。
+*	STEP 08: TODO登録画面を作成する、その6。
+*	STEP 09: TODO登録画面を作成する、その7。
 
 
 # STEP 00: DBアクセスコードを生成する。
@@ -366,7 +372,7 @@ public class LoginControllerImpl implements LoginController {
 
 ## フォーム
 
-STEP 03では「基本的な画面遷移を実装する」こととします。
+STEP 03では「基本的な画面遷移を実装」します。
 
 フォームについてはSTEP 03では枠のみ実装します。フォームの中身はSTEP 04で実装します。
 なお、フォームクラスは設計書から生成しやすい部位ですので、実プロジェクトではコード生成されることが多いです。
@@ -503,5 +509,75 @@ JSPのコードは下記の通りです。
 <h2>TODO登録</h2>
 <p>完了画面</p>
 ```
+
+
+# STEP 04: TODO登録画面を作成する、その2。
+
+STEP 04では「フォーム(Java)にプロパティと妥当性検証ルールを実装」します。
+
+## フォームの仕様
+フォームの仕様は下記の通りです。
+
+*	TODOの期日
+	*	パラメタ名: `dueDate`
+	*	データ型: 日付 `LocalDate` ([Joda-Time](http://www.joda.org/joda-time/ "Joda-Time"))
+	*	検証条件
+		*	必須
+*	TODOの内容
+	*	パラメタ名: `description`
+	*	データ型: 文字列 (`String`)
+	*	検証条件
+		*	必須
+		*	最大5000文字
+
+## フォームの実装
+フォームは、「Beanとしてのプロパティの定義」と「妥当性検証ルールのアノテーション指定」の2つの要素からなります。
+
+Spring MVCはアノテーションによる妥当性検証([JSR 303: Bean Validation](https://jcp.org/en/jsr/detail?id=303 "JSR 303: Bean Validation"), [JSR 349: Bean Validation 1.1](https://jcp.org/en/jsr/detail?id=349 "JSR 349: Bean Validation 1.1"), [Hibernate Validator](http://hibernate.org/validator/ "Hibernate Validator"))に対応しています。基本的に標準で提供されているアノテーションを使いますが、案件によっては自前で妥当性検証のアノテーションを定義して使います。本チュートリアルでは、標準の`@Range`を元にして、最大長チェックのアノテーション`@MaxLength`を定義しています。TODO登録のフォームでもこれを使用します。
+
+昔ながらのフレームワークでは文字列で受取りますが、Spring MVCでは型変換(`ConversionService`)の仕組みを使うことで、文字列以外のプロパティで入力値を受取ることができます。プロパティの型に変換できない場合は「形式不正(typeMismatch)で妥当性検証NG」と判定されます。また、変換元の入力値は`BindingResult`が持っており、入力画面で再入力を促す際も「元の入力値」が画面に表示されます。
+
+以上を踏まえ、フォームを以下の通り定義します。
+必須判定を意図してアノテーション`@NotNull`と`@NotEmpty`を指定しています。この使い分けは、文字列は`@NotEmpty`、文字列以外は`@NotNull`です。
+
+```Java:TodoCreateForm
+@Setter
+@Getter
+@EqualsAndHashCode
+@ToString
+public class TodoCreateForm implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	@NotNull
+	@CustomDateTimeFormat()
+	private LocalDate dueDate;
+
+	@NotEmpty
+	@MaxLength(5000)
+	private String description;
+
+}
+```
+
+# STEP 05: TODO登録画面を作成する、その3。
+
+STEP 05では「画面に入力フォーム(form要素)を実装」します。
+
+# STEP 06: TODO登録画面を作成する、その4。
+
+STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装」します。
+
+# STEP 07: TODO登録画面を作成する、その5。
+
+STEP 07では「妥当性検証NGの場合のメッセージ表示を画面に実装」します。
+
+# STEP 08: TODO登録画面を作成する、その6。
+
+STEP 08では「TODO登録画面の主たる業務ロジックである「DBにTODOレコードを作成する」を実装」します。
+
+# STEP 09: TODO登録画面を作成する、その7。
+
+STEP 09では「作成したTODOレコードの内容を完了画面に表示」します。
 
 以上。

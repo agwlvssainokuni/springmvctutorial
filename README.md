@@ -560,17 +560,141 @@ public class TodoCreateForm implements Serializable {
 }
 ```
 
+
 # STEP 05: TODO登録画面を作成する、その3。
 
 STEP 05では「画面に入力フォーム(form要素)を実装」します。
+
+## JSP
+
+「入力画面」に入力フォームを表示します。
+
+```HTML:/WEB-INF/tiles/secure/todo/create/init.jsp
+<h2>TODO登録</h2>
+<f:form servletRelativeAction="/secure/todo/create/confirm"
+	method="POST" modelAttribute="todoCreateForm" role="form">
+	<div class="form-group">
+		<label for="dueDate">期日</label>
+		<f:input path="dueDate" cssClass="form-control"
+			cssErrorClass="form-control has-error" />
+	</div>
+	<div class="form-group">
+		<label for="description">内容</label>
+		<f:textarea path="description" cssClass="form-control"
+			cssErrorClass="form-control has-error" />
+	</div>
+	<f:button type="submit" class="btn btn-default">確認</f:button>
+</f:form>
+```
+
+また、「確認画面」に確認用の表示します。あわせて、「登録処理」に受渡すための隠し入力フォームを配置します。
+
+```HTML:/WEB-INF/tiles/secure/todo/create/confirm.jsp
+<h2>TODO登録</h2>
+<s:nestedPath path="todoCreateForm">
+	<div class="form-group">
+		<label for="dueDate">期日</label>
+		<f:input path="dueDate" cssClass="form-control" readonly="true" />
+	</div>
+	<div class="form-group">
+		<label for="description">内容</label>
+		<f:textarea path="description" cssClass="form-control" readonly="true" />
+	</div>
+</s:nestedPath>
+<f:form servletRelativeAction="/secure/todo/create/execute"
+	method="POST" modelAttribute="todoCreateForm" id="todoCreateFormHidden">
+	<f:hidden path="dueDate" id="dueDateHidden" />
+	<f:hidden path="description" id="descriptionHidden" />
+	<f:button type="submit" class="btn btn-default">登録</f:button>
+</f:form>
+```
+
 
 # STEP 06: TODO登録画面を作成する、その4。
 
 STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装」します。
 
+## コントローラ
+
+```Java:TodoCreateControllerImpl#confirm
+	@Override
+	public ModelAndView confirm(TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_CONFIRM);
+		return mav;
+	}
+```
+
+```Java:TodoCreateControllerImpl#execute
+	@Override
+	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
+		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
+				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
+				locale, sitePref, request, redirAttr).build();
+
+		ModelAndView mav = new ModelAndView();
+		mav.setView(new RedirectView(uc.toUriString(), true));
+		return mav;
+	}
+```
+
+
 # STEP 07: TODO登録画面を作成する、その5。
 
 STEP 07では「妥当性検証NGの場合のメッセージ表示を画面に実装」します。
+
+## JSP
+
+```HTML:/WEB-INF/tiles/secure/todo/create/init.jsp
+<h2>TODO登録</h2>
+<s:hasBindErrors name="todoCreateForm">
+	<div class="form-group has-error">
+		<div class="help-block bg-danger">
+			<s:nestedPath path="todoCreateForm">
+				<f:errors path="dueDate" element="div" />
+				<f:errors path="description" element="div" />
+			</s:nestedPath>
+		</div>
+	</div>
+</s:hasBindErrors>
+<f:form servletRelativeAction="/secure/todo/create/confirm"
+	method="POST" modelAttribute="todoCreateForm" role="form">
+	<div class="form-group">
+		<label for="dueDate">期日</label>
+		<f:input path="dueDate" cssClass="form-control"
+			cssErrorClass="form-control has-error" />
+	</div>
+	<div class="form-group">
+		<label for="description">内容</label>
+		<f:textarea path="description" cssClass="form-control"
+			cssErrorClass="form-control has-error" />
+	</div>
+	<f:button type="submit" class="btn btn-default">確認</f:button>
+</f:form>
+```
+
+## message/form.propertiesファイル (表示文言)
+
+```Ini:message/form.properties
+todoCreateForm.dueDate=\u671F\u65E5
+todoCreateForm.description=\u5185\u5BB9
+```
+
 
 # STEP 08: TODO登録画面を作成する、その6。
 

@@ -2,6 +2,7 @@ Spring MVCチュートリアル
 ========================
 
 # 概要
+*	準備
 *	STEP 00: DBアクセスコードを生成する。
 *	STEP 01: ホーム画面を作成する。
 *	STEP 02: ログイン画面を作成する。
@@ -12,6 +13,55 @@ Spring MVCチュートリアル
 *	STEP 07: TODO登録画面を作成する、その5。
 *	STEP 08: TODO登録画面を作成する、その6。
 *	STEP 09: TODO登録画面を作成する、その7。
+
+# 準備
+## 開発者環境のセットアップ
+
+*	下記のツールをセットアップしてください。
+	*	Git
+	*	Gradle
+	*	Maven3
+*	WildFlyをセットアップしてください。
+	*	standalone-full.xml を使用します。
+	*	logging サブシステム (`"urn:jboss:domain:logging:2.0"`) 直下に下記の設定を追加してください。
+
+		```xml:standalone-full.xml
+		<subsystem xmlns="urn:jboss:domain:logging:2.0">
+			<add-logging-api-dependencies value="false"/>
+			<use-deployment-logging-config value="false"/>
+			...
+		```
+
+	*	データソースを作成してください。
+		*	JDBCドライバ: H2 (WildFlyに標準搭載)
+		*	JNDI名: java:/datasources/TutorialApp
+		*	URL: jdbc:h2:mem:TutorialApp
+		*	DBユーザ: sa (パスワードは指定しない)
+*	Eclipseをセットアップしてください。
+	*	Eclipse Luna (4.4)
+	*	マーケットプレースから JBoss Tool をインストールしてください。
+	*	先にセットアップしたWildFlyを指定してサーバを作成してください。standalone-full.xmlを指定してください。
+
+## チュートリアルのセットアップ
+
+*	本チュートリアルをcloneしてください。
+*	下記のコマンドでEclipseプロジェクト化してください。
+
+	```bash:コマンドライン
+	$ cd springmvctutorial
+	$ gradle eclipse
+	```
+
+*	本チュートリアルのプロジェクトを、Eclipseでインポートしてください。
+*	また、本チュートリアルのプロジェクトを、EclipseでWildFlyサーバに追加してください。
+
+## セットアップの確認
+
+*	EclipseでWildFlyサーバを開始してください。
+*	ブラウザで下記URLにアクセスしてください。
+	*	http://localhost:8080/springmvctutorial/
+	*	まだ中身を作成していないので何も表示されませんが、http://localhost:8080/springmvctutorial/secure/ へHTTPリダイレクトされればOKです。
+*	WildFlyサーバを停止してください。
 
 
 # STEP 00: DBアクセスコードを生成する。

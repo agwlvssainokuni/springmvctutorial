@@ -87,4 +87,7 @@ public class PathDef {
 	/** メソッド: 完了 */
 	public static final String METHOD_FINISH = "finish";
 
+	/** メソッド: ダウンロード */
+	public static final String METHOD_DOWNLOAD = "download";
+
 }

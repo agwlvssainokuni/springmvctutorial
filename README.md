@@ -10,7 +10,7 @@ Spring MVCチュートリアル
 
 # STEP 00: DBアクセスコードを生成する。
 
-DBアクセスにあたっては [MyBatis](http://mybatis.github.io/mybatis-3/ "MyBatis") をメインとして使用します。動的に条件を組立てるSQLを発行するケースでは [Querydsl](http://www.querydsl.com "Querydsl") (特に [Querydsl SQL](https://github.com/querydsl/querydsl/tree/master/querydsl-sql "Querydsl SQL") ) を使用します。
+DBアクセスにあたっては [MyBatis](http://mybatis.github.io/mybatis-3/ "MyBatis") をメインとして使用します。動的に条件を組立てるSQLを発行するケースでは [Querydsl](http://www.querydsl.com "Querydsl") (特に [Querydsl SQL](https://github.com/querydsl/querydsl/tree/master/querydsl-sql "Querydsl SQL")) を使用します。
 なお、DBアクセス用にコード生成ツールの [MyBatis Generator](http://mybatis.github.io/generator/ "MyBatis Generator") と [Querydsl codegen](https://github.com/querydsl/codegen "Querydsl codegen") を使用します。
 
 ```bash:コマンドライン
@@ -68,7 +68,7 @@ Spring MVC は、アノテーションで指定することが前提であり、
 		*	`RedirectAttributes redirAttr`
 *	返却値: `ModelAndView`
 
-これに基づきインタフェースを下記の通り定義します (`package`や`import`は省略しています)。
+これに基づきインタフェースを下記の通り定義します。なお、`package`や`import`は省略しています(以下同様)。
 
 ```Java:HomeController
 @RequestMapping(PathDef.URI_HOME)
@@ -102,7 +102,7 @@ public class HomeControllerImpl implements HomeController {
 ```
 
 ## JSP
-Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの記法でOKです。JSP, EL, [JSTL 1.2](https://jstl.java.net "JSTL 1.2"), Spring Tag, Spring Form Tag, Spring Security Tag が使えます。
+Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの記法でOKです。JSP, EL, [JSTL 1.2](https://jstl.java.net "JSTL 1.2"), [Spring Tag](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring.tld.html "Spring Tag"), [Spring Form Tag](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-form.tld.html "Spring Form Tag"), [Spring Security Tag](http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#taglibs "Spring Security Tag") が使えます。
 また、本チュートリアルでは[Apache Tiles3](https://tiles.apache.org "Apache Tiles3")を使っています。実際に記述するJSPはbody要素の中身(のコンテンツ領域)のみです。
 
 ホーム画面のJSPを下記の通り定義します。(下記の`c:`は JSTL の Core Tag Library です)
@@ -129,7 +129,7 @@ Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの
 		*	POST先のURIパス: `/login/req`
 		*	ログインIDのパラメタ名: `loginId`
 		*	パスワードのパラメタ名: `password`
-	*	ログイン処理の実態は [Spring Security](http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/)。
+	*	ログイン処理の実態は [Spring Security](http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/ "Spring Security")。
 		*	ログイン成功: `/secure/`へリダイレクト。
 		*	ログイン失敗: `/login?loginFailed`へリダイレクト。
 		*	ログアウト: `/login?loggedOut`へリダイレクト
@@ -273,5 +273,125 @@ public class LoginControllerImpl implements LoginController {
 
 # STEP 03: TODO登録画面を作成する、その1。
 
+```Java:TodoCreateForm
+@Setter
+@Getter
+@EqualsAndHashCode
+@ToString
+public class TodoCreateForm implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+}
+```
+
+```Java:TodoCreateController
+@RequestMapping(PathDef.URI_TODO_CREATE)
+public interface TodoCreateController {
+
+	@ModelAttribute()
+	TodoCreateForm getForm();
+
+	@RequestMapping()
+	ModelAndView init(Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request);
+
+	@RequestMapping(PathDef.SUBURI_CONFIRM)
+	ModelAndView confirm(@Validated TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request);
+
+	@RequestMapping(PathDef.SUBURI_EXECUTE)
+	ModelAndView execute(@Validated TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr);
+
+	@RequestMapping(PathDef.SUBURI_FINISH)
+	ModelAndView finish(Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request,
+			RedirectAttributes redirAttr);
+
+}
+```
+
+```Java:TodoCreateControllerImpl
+@Controller
+public class TodoCreateControllerImpl implements TodoCreateController {
+
+	@Override
+	public TodoCreateForm getForm() {
+		TodoCreateForm form = new TodoCreateForm();
+		return form;
+	}
+
+	@Override
+	public ModelAndView init(Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+		return mav;
+	}
+
+	@Override
+	public ModelAndView confirm(TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_CONFIRM);
+		return mav;
+	}
+
+	@Override
+	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
+		Integer id = 0; // TODO To be implemented later.
+
+		redirAttr.addFlashAttribute(PathDef.PATH_VAR_ID, id);
+
+		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
+				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
+				locale, sitePref, request, redirAttr).build();
+
+		ModelAndView mav = new ModelAndView();
+		mav.setView(new RedirectView(uc.toUriString(), true));
+		return mav;
+	}
+
+	@Override
+	public ModelAndView finish(Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request,
+			RedirectAttributes redirAttr) {
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_FINISH);
+		return mav;
+	}
+
+}
+```
+
+```HTML:/WEB-INF/tiles/secure/todo/create/init.jsp
+<h2>TODO登録</h2>
+<p>init</p>
+```
+
+```HTML:/WEB-INF/tiles/secure/todo/create/confirm.jsp
+<h2>TODO登録</h2>
+<p>confirm</p>
+```
+
+```HTML:/WEB-INF/tiles/secure/todo/create/finish.jsp
+<h2>TODO登録</h2>
+<p>finish</p>
+```
 
 以上。

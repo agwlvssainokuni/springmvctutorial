@@ -35,8 +35,7 @@ $ mvn querydsl:export
 	*	コントローラ
 		*	インタフェース: `cherry.spring.tutorial.web.secure.home.HomeController`
 		*	実装クラス: `cherry.spring.tutorial.web.secure.home.HomeControllerImpl`
-	*	JSP: `/WEB-INF/tiles/secure/home/init.jsp`
-		*	ビュー名: `secure/home/init`
+	*	JSP: `/WEB-INF/tiles/secure/home/init.jsp` (ビュー名: `secure/home/init`)
 
 ## コントローラ
 ### インタフェース
@@ -137,8 +136,7 @@ Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの
 	*	コントローラ
 		*	インタフェース: `cherry.spring.tutorial.web.login.LoginController`
 		*	実装クラス: `cherry.spring.tutorial.web.login.LoginControllerImpl`
-	*	JSP: `/WEB-INF/tiles/login/init.jsp`
-		*	ビュー名: `login/init`
+	*	JSP: `/WEB-INF/tiles/login/init.jsp` (ビュー名: `login/init`)
 	*	ログイン成功/失敗、ログアウトのメッセージ表示
 		*	フラッシュスコープを使用してメッセージを表示する。
 		*	`/login?loginFailed`, `/login?loggedOut`のロジックの中で、フラッシュスコープにデータを入れて、`/login`へリダイレクトする。
@@ -272,6 +270,54 @@ public class LoginControllerImpl implements LoginController {
 ```
 
 # STEP 03: TODO登録画面を作成する、その1。
+
+いよいよ入力フォームを持つ画面を作成します。作成すものは、これまでと同様の「コントローラ」と「JSP」に加え、入力値を保持する「フォーム」です。
+
+## 画面の仕様
+
+画面の仕様を確認します。TODO登録は、「入力画面」「確認画面」「完了画面」
+
+*	外部仕様
+	*	入力画面
+		*	URIパス: `/secure/todo/create`
+		*	入力フォーム
+			*	TODOの期日のパラメタ名: `dueDate`
+			*	TODOの内容のパラメタ名: `description`
+		*	「確認」ボタンを押下すると、「確認画面」へ遷移する。
+	*	確認画面
+		*	URIパス: `/secure/todo/create/confirm`
+		*	表示項目: 「入力画面」で入力された値
+		*	「登録」ボタンを押下すると、「登録処理」へPOSTする。
+	*	登録処理
+		*	URIパス: `/secure/todo/create/execute`
+		*	POSTされた値をDBに登録し、「完了画面」へHTTPリダイレクトする(画面遷移する)。
+	*	完了画面
+		*	URIパス: `/secure/todo/create/confirm`
+		*	表示項目: 「登録処理」で登録したTODOの内容
+			*	TODOの期日 (入力値)
+			*	TODOの内容 (入力値)
+			*	TODO番号 (登録処理で発行された主キー)
+			*	登録日時 (登録処理を実施した業務日時)
+*	内部仕様
+	*	共通
+		*	フォーム: `cherry.spring.tutorial.web.secure.todo.create.TodoCreateForm`
+		*	コントローラ
+			*	インタフェース: `cherry.spring.tutorial.web.secure.todo.create.TodoCreateController`
+			*	実装クラス: `cherry.spring.tutorial.web.secure.todo.create.TodoCreateControllerImpl`
+	*	入力画面
+		*	メソッド: `init`
+		*	JSP: `/WEB-INF/tiles/secure/todo/create/init.jsp` (ビュー名: `secure/todo/create/init`)
+		*	処理
+	*	確認画面
+		*	メソッド: `confirm`
+		*	JSP: `/WEB-INF/tiles/secure/todo/create/confirm.jsp` (ビュー名: `secure/todo/create/confirm`)
+	*	登録処理
+		*	メソッド: `execute`
+		*	完了画面へHTTPリダイレクトする。
+	*	完了画面
+		*	メソッド: `finish`
+		*	JSP: `/WEB-INF/tiles/secure/todo/create/finish.jsp` (ビュー名: `secure/todo/create/finish`)
+
 
 ```Java:TodoCreateForm
 @Setter

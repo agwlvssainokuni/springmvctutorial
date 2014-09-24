@@ -11,11 +11,11 @@
 <h2>TODO登録</h2>
 <s:nestedPath path="todoCreateForm">
 	<div class="form-group">
-		<label for="dueDate">期日</label>
+		<f:label path="dueDate">期日</f:label>
 		<f:input path="dueDate" cssClass="form-control" readonly="true" />
 	</div>
 	<div class="form-group">
-		<label for="description">内容</label>
+		<f:label path="description">内容</f:label>
 		<f:textarea path="description" cssClass="form-control" readonly="true" />
 	</div>
 </s:nestedPath>

@@ -33,7 +33,9 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
 import cherry.spring.common.helper.bizdate.BizdateHelper;
+import cherry.spring.tutorial.db.gen.dto.Todo;
 import cherry.spring.tutorial.web.PathDef;
+import cherry.spring.tutorial.web.secure.todo.TodoService;
 
 @Controller
 public class TodoCreateControllerImpl implements TodoCreateController {
@@ -43,6 +45,9 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 
 	@Autowired
 	private BizdateHelper bizdateHelper;
+
+	@Autowired
+	private TodoService todoService;
 
 	@Override
 	public TodoCreateForm getForm() {
@@ -81,6 +86,19 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
 			return mav;
 		}
+
+		Todo todo = new Todo();
+		todo.setPostedBy(auth.getName());
+		todo.setPostedAt(bizdateHelper.now());
+		todo.setDueDate(form.getDueDate());
+		todo.setDescription(form.getDescription());
+		Integer id = todoService.create(todo);
+		if (id == null) {
+			throw new IllegalStateException("Failed to create todo record: "
+					+ todo.toString());
+		}
+
+		redirAttr.addFlashAttribute(PathDef.PATH_VAR_ID, id);
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
 				TodoCreateController.class, PathDef.METHOD_FINISH, auth,

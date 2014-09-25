@@ -26,7 +26,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
@@ -59,11 +58,13 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	@Override
 	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr) {
+			HttpServletRequest request) {
+
+		Integer id = 0;
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
-				locale, sitePref, request, redirAttr).build();
+				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,
+				locale, sitePref, request).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
@@ -71,9 +72,8 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	}
 
 	@Override
-	public ModelAndView finish(Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request,
-			RedirectAttributes redirAttr) {
+	public ModelAndView finish(int id, Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_FINISH);
 		return mav;
 	}

@@ -6,13 +6,13 @@ Spring MVCチュートリアル
 *	STEP 00: DBアクセスコードを生成する。
 *	STEP 01: ホーム画面を作成する。
 *	STEP 02: ログイン画面を作成する。
-*	STEP 03: TODO登録画面を作成する、その1。
-*	STEP 04: TODO登録画面を作成する、その2。
-*	STEP 05: TODO登録画面を作成する、その3。
-*	STEP 06: TODO登録画面を作成する、その4。
-*	STEP 07: TODO登録画面を作成する、その5。
-*	STEP 08: TODO登録画面を作成する、その6。
-*	STEP 09: TODO登録画面を作成する、その7。
+*	STEP 03: TODO登録画面を作成する。(1)
+*	STEP 04: TODO登録画面を作成する。(2)
+*	STEP 05: TODO登録画面を作成する。(3)
+*	STEP 06: TODO登録画面を作成する。(4)
+*	STEP 07: TODO登録画面を作成する。(5)
+*	STEP 08: TODO登録画面を作成する。(6)
+*	STEP 09: TODO登録画面を作成する。(7)
 
 # 準備
 ## 開発者環境のセットアップ
@@ -325,7 +325,7 @@ public class LoginControllerImpl implements LoginController {
 </form>
 ```
 
-# STEP 03: TODO登録画面を作成する、その1。
+# STEP 03: TODO登録画面を作成する。(1)
 
 いよいよ入力フォームを持つ画面を作成します。作成すものは、これまでと同様の「コントローラ」と「JSP」に加え、入力値を保持する「フォーム」です。
 
@@ -561,7 +561,7 @@ JSPのコードは下記の通りです。
 ```
 
 
-# STEP 04: TODO登録画面を作成する、その2。
+# STEP 04: TODO登録画面を作成する。(2)
 
 STEP 04では「フォーム(Java)にプロパティと妥当性検証ルールを実装」します。
 
@@ -573,6 +573,7 @@ STEP 04では「フォーム(Java)にプロパティと妥当性検証ルール�
 	*	データ型: 日付 `LocalDate` ([Joda-Time](http://www.joda.org/joda-time/ "Joda-Time"))
 	*	検証条件
 		*	必須
+	*	初期値: 7日後 (設定値)
 *	TODOの内容
 	*	パラメタ名: `description`
 	*	データ型: 文字列 (`String`)
@@ -610,8 +611,56 @@ public class TodoCreateForm implements Serializable {
 }
 ```
 
+## 初期値の構成
+コントローラのインタフェースでアノテーション`@ModelAttribute()`を付与したメソッド`TodoCreateForm getForm()`が返却する値が、フォームの初期値として使用されます。
+具体的な初期値の構成方法を下記に示します。
 
-# STEP 05: TODO登録画面を作成する、その3。
+フォームの「期日」の初期値の仕様は、前述の通り「7日後」です。値の算出式は「『今日の日付』-『7日(設定値)』」ですので、以下の手順で処理します。
+
+*	初期値「期日」の「オフセット」を設定ファイルから詠込む。
+*	「今日の日付」を取得する。
+*	「『今日の日付』-『オフセット』」を算出する。
+
+### 初期値「期日」の「オフセット」を設定ファイルから詠込む
+昔ながらのフレームワークでは、設定ファイルから「設定値を取得する」という「処理」をコーディングしました。しかし、Spring FrameworkではDI (Dependency Injection) の機構によって、「値をInjectさせる」という方式をとります。業務ロジックのコードが実行される時点で、既に「設定値がインスタンス変数に入っている」状態です。「設定値を取得する」という処理をコーディングする必要はありません。
+
+具体的には、Spring Frameworkの`PropertyPlaceholderConfigurer` (アプリケーションコンテキスト設定ファイルの`<context:property-placeholder />`タグと等価) を使用します。これにより「インスタンス変数にアノテーション`@Value("${プロパティのキー名}")`を付与することで、プロパティファイル (.properties) の設定値がInjectされる」ようになります。
+
+以上を踏まえ、プロパティファイルとコントローラの実装クラスを、以下の通り実装します。
+
+```Init:tutorial.properties
+tutorial.web.secure.todo.create.defaultOffsetOfDueDate=7
+```
+
+```Java:TodoCreateControllerImpl
+	@Value("${tutorial.web.secure.todo.create.defaultOffsetOfDueDate}")
+	private int defaultOffsetOfDueDate;
+```
+
+### 「今日の日付」を取得する
+要件にも依存しますが、業務システムにおいては通常「締め」という考え方があります。このため、システム日時とは別に「業務処理の上では現在はxx年xx月xx日として扱う」ことが一般的です。これを「業務日付」や「業務日時」と呼び、システム日時と区別します。
+
+本チュートリアルもこの考え方に則り、業務日付を今日の日付とします。業務日付は`BizdateHelper#today()`メソッドで取得します。
+
+### 「『今日の日付』-『オフセット』」を算出する
+`BizdteHelper#today()`メソッドを呼出すために、コントローラの実装クラスに`BizdateHelper`のインスタンスがInjectされるように構成します。具体的には、インスタンス変数`private BizdateHelper bizdateHelper`を定義し、これにアノテーション`@Autowired`を付与します。
+
+以上を踏まえ、コントローラの実装クラスを、以下の通り実装します。
+
+```Java:TodoCreateControllerImpl
+	@Autowired
+	private BizdateHelper bizdateHelper;
+
+	@Override
+	public TodoCreateForm getForm() {
+		TodoCreateForm form = new TodoCreateForm();
+		form.setDueDate(bizdateHelper.today().minusDays(defaultOffsetOfDueDate));
+		return form;
+	}
+```
+
+
+# STEP 05: TODO登録画面を作成する。(3)
 
 STEP 05では「画面に入力フォーム(form要素)を実装」します。
 
@@ -660,7 +709,7 @@ STEP 05では「画面に入力フォーム(form要素)を実装」します。
 ```
 
 
-# STEP 06: TODO登録画面を作成する、その4。
+# STEP 06: TODO登録画面を作成する。(4)
 
 STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装」します。
 
@@ -704,7 +753,7 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 ```
 
 
-# STEP 07: TODO登録画面を作成する、その5。
+# STEP 07: TODO登録画面を作成する。(5)
 
 STEP 07では「妥当性検証NGの場合のメッセージ表示を画面に実装」します。
 
@@ -746,11 +795,11 @@ todoCreateForm.description=\u5185\u5BB9
 ```
 
 
-# STEP 08: TODO登録画面を作成する、その6。
+# STEP 08: TODO登録画面を作成する。(6)
 
 STEP 08では「TODO登録画面の主たる業務ロジックである「DBにTODOレコードを作成する」を実装」します。
 
-# STEP 09: TODO登録画面を作成する、その7。
+# STEP 09: TODO登録画面を作成する。(7)
 
 STEP 09では「作成したTODOレコードの内容を完了画面に表示」します。
 

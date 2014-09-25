@@ -81,8 +81,6 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request) {
 
-		Integer id = 0;
-
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
 			return mav;
@@ -98,8 +96,6 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 			throw new IllegalStateException("Failed to create todo record: "
 					+ todo.toString());
 		}
-
-		redirAttr.addFlashAttribute(PathDef.PATH_VAR_ID, id);
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
 				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,

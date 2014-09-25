@@ -348,7 +348,7 @@ public class LoginControllerImpl implements LoginController {
 		*	URIパス: `/secure/todo/create/execute`
 		*	POSTされた値をDBに登録し、「完了画面」へHTTPリダイレクトする(画面遷移する)。
 	*	完了画面
-		*	URIパス: `/secure/todo/create/confirm`
+		*	URIパス: `/secure/todo/create/finish`
 		*	表示項目: 「登録処理」で登録したTODOの内容
 			*	TODOの期日 (入力値)
 			*	TODOの内容 (入力値)
@@ -375,19 +375,18 @@ public class LoginControllerImpl implements LoginController {
 		*	メソッド: `execute`
 			*	引数として受渡されたフォームとバインド結果から入力値の妥当性を検証する。
 			*	入力値をフォームから取得し、DBにTODOレコードを作成する。
-			*	作成したレコードの主キー(id)をフラッシュスコープに保管する。
-			*	`ModelAndView`を作りリダイレクト先のURIパスを設定する。
+			*	`ModelAndView`を作りリダイレクト先のURIパスを設定する。作成したレコードの主キー(id)をリクエストパラメタとして受渡す。
 			*	形成した`ModelAndView`を返却する。
 		*	完了画面へHTTPリダイレクトする。
 	*	完了画面
 		*	メソッド: `finish`
-			*	フラッシュスコープに保管された主キー(id)を取出し、該当するTODOレコードをDB照会する。
+			*	リクエストパラメタに指定された主キー(id)に該当するTODOレコードをDB照会する。
 			*	`ModelAndView`を作りビュー名を設定する。また、`ModelAndView`にTODOレコードを設定する。
 			*	形成した`ModelAndView`を返却する。
 		*	JSP: `/WEB-INF/tiles/secure/todo/create/finish.jsp` (ビュー名: `secure/todo/create/finish`)
 
 ## コントローラのメソッドの基本構成
-コントローラのメソッドは原則として下記の構成をとるようにしてください。なお、処理の内容に用事て実施しないこともあり得ます。上記に記述したメソッドの内部仕様もこれに則っています。
+コントローラのメソッドは原則として下記の構成をとるようにしてください。なお、処理の内容に応じて実施しないこともあり得ます。上記に記述したメソッドの内部仕様もこれに則っています。
 
 *	入力値の妥当性を検証する。
 	*	単項目チェック (入力値の字面上の様式をチェックする)。
@@ -397,7 +396,6 @@ public class LoginControllerImpl implements LoginController {
 	*	DBの照会や更新処理 (CRUD)。
 	*	メッセージキューの操作 (非同期処理を実行登録)。
 	*	フラッシュスコープにデータをセットする。
-	*	フラッシュスコープからデータを取出す。
 *	返却値を形成する。
 	*	`ModelAndView`を形成する。
 	*	ビュー名を設定する。

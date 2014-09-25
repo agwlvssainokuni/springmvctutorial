@@ -4,8 +4,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
 
 	<import resource="applicationContext-common.xml" />
-	<import resource="applicationContext-commonMapper.xml" />
 	<import resource="applicationContext-tutorial.xml" />
+	<import resource="applicationContext-tutorialMapper.xml" />
 	<import resource="applicationContext-tutorialWeb.xml" />
 	<import resource="applicationContext-dataSource.xml" />
 

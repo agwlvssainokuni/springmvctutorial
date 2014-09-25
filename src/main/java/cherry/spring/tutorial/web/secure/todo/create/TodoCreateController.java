@@ -26,8 +26,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import cherry.spring.tutorial.web.PathDef;
 
@@ -49,11 +49,11 @@ public interface TodoCreateController {
 	@RequestMapping(PathDef.SUBURI_EXECUTE)
 	ModelAndView execute(@Validated TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr);
+			HttpServletRequest request);
 
 	@RequestMapping(PathDef.SUBURI_FINISH)
-	ModelAndView finish(Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request,
-			RedirectAttributes redirAttr);
+	ModelAndView finish(@RequestParam(PathDef.PATH_VAR_ID) int id,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request);
 
 }

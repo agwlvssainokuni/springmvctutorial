@@ -425,11 +425,11 @@ public class LoginControllerImpl implements LoginController {
 STEP 03では「基本的な画面遷移を実装」します。
 
 フォームについてはSTEP 03では枠のみ実装します。フォームの中身はSTEP 04で実装します。
-なお、フォームクラスは設計書から生成しやすい部位ですので、実プロジェクトではコード生成されることが多いです。
+なお、フォームクラスは設計書から生成しやすい部位ですので、実プロジェクトではコード生成されることが多いでしょう。
 
 フォームのコードは下記の通りです。
-フォームは単純なBeanですので[Lombok](http://projectlombok.org "Lombok")を適用しやすいです。本チュートリアルでも使用します(クラスに付与した4つのアノテーションがそれです)。
-また、フォームはセッションに格納することもあるので、シリアライザブルを実装 (`implements`) します。
+フォームは単純なBeanですので[Lombok](http://projectlombok.org "Lombok")を適用しやすいと言えます。本チュートリアルでも使用しています。クラスに付与した4つのアノテーションがそれです。
+また、フォームはセッションに格納することもあるので、`Serializable`を実装 (`implements`) します。
 
 ```Java:TodoCreateForm
 @Setter
@@ -475,12 +475,12 @@ public interface TodoCreateController {
 	@RequestMapping(PathDef.SUBURI_EXECUTE)
 	ModelAndView execute(@Validated TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr);
+			HttpServletRequest request);
 
 	@RequestMapping(PathDef.SUBURI_FINISH)
-	ModelAndView finish(Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request,
-			RedirectAttributes redirAttr);
+	ModelAndView finish(@RequestParam(PathDef.PATH_VAR_ID) int id,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request);
 
 }
 ```
@@ -518,11 +518,13 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	@Override
 	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr) {
+			HttpServletRequest request) {
+
+		Integer id = 0;
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
-				locale, sitePref, request, redirAttr).build();
+				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,
+				locale, sitePref, request).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
@@ -530,9 +532,8 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	}
 
 	@Override
-	public ModelAndView finish(Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request,
-			RedirectAttributes redirAttr) {
+	public ModelAndView finish(int id, Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_FINISH);
 		return mav;
 	}

@@ -20,6 +20,8 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.site.SitePreference;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -30,14 +32,22 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
+import cherry.spring.common.helper.bizdate.BizdateHelper;
 import cherry.spring.tutorial.web.PathDef;
 
 @Controller
 public class TodoCreateControllerImpl implements TodoCreateController {
 
+	@Value("${tutorial.web.secure.todo.create.defaultOffsetOfDueDate}")
+	private int defaultOffsetOfDueDate;
+
+	@Autowired
+	private BizdateHelper bizdateHelper;
+
 	@Override
 	public TodoCreateForm getForm() {
 		TodoCreateForm form = new TodoCreateForm();
+		form.setDueDate(bizdateHelper.today().minusDays(defaultOffsetOfDueDate));
 		return form;
 	}
 

@@ -799,6 +799,84 @@ todoCreateForm.description=\u5185\u5BB9
 
 STEP 08では「TODO登録画面の主たる業務ロジックである「DBにTODOレコードを作成する」を実装」します。
 
+## サービス
+### インタフェース
+
+```Java:TodoService
+public interface TodoService {
+
+	Integer create(Todo todo);
+
+}
+```
+
+### 実装クラス
+
+```Java:TodoServiceImpl
+@Service
+public class TodoServiceImpl implements TodoService {
+
+	@Autowired
+	private TodoMapper todoMapper;
+
+	@Transactional
+	@Override
+	public Integer create(Todo todo) {
+		int count = todoMapper.insertSelective(todo);
+		if (count != 1) {
+			return null;
+		}
+		return todo.getId();
+	}
+
+}
+```
+
+## コントローラ
+### サービスをDIする
+
+```Java:TodoCreateControllerImpl
+	@Autowired
+	private TodoService todoService;
+```
+
+### 「登録処理」にサービス呼出しを追加する
+
+```Java:TodoCreateControllerImpl
+	@Override
+	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request, RedirectAttributes redirAttr) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
+		Todo todo = new Todo();
+		todo.setPostedBy(auth.getName());
+		todo.setPostedAt(bizdateHelper.now());
+		todo.setDueDate(form.getDueDate());
+		todo.setDescription(form.getDescription());
+		Integer id = todoService.create(todo);
+		if (id == null) {
+			throw new IllegalStateException("Failed to create todo record: "
+					+ todo.toString());
+		}
+
+		redirAttr.addFlashAttribute(PathDef.PATH_VAR_ID, id);
+
+		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
+				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
+				locale, sitePref, request, redirAttr).build();
+
+		ModelAndView mav = new ModelAndView();
+		mav.setView(new RedirectView(uc.toUriString(), true));
+		return mav;
+	}
+```
+
+
 # STEP 09: TODO登録画面を作成する。(7)
 
 STEP 09では「作成したTODOレコードの内容を完了画面に表示」します。

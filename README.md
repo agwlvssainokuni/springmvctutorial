@@ -734,16 +734,18 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 	@Override
 	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr) {
+			HttpServletRequest request) {
 
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
 			return mav;
 		}
 
+		Integer id = 0;
+
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
-				locale, sitePref, request, redirAttr).build();
+				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,
+				locale, sitePref, request).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
@@ -845,7 +847,7 @@ public class TodoServiceImpl implements TodoService {
 	@Override
 	public ModelAndView execute(TodoCreateForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request, RedirectAttributes redirAttr) {
+			HttpServletRequest request) {
 
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
@@ -863,11 +865,9 @@ public class TodoServiceImpl implements TodoService {
 					+ todo.toString());
 		}
 
-		redirAttr.addFlashAttribute(PathDef.PATH_VAR_ID, id);
-
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoCreateController.class, PathDef.METHOD_FINISH, auth,
-				locale, sitePref, request, redirAttr).build();
+				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,
+				locale, sitePref, request).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
@@ -879,5 +879,71 @@ public class TodoServiceImpl implements TodoService {
 # STEP 09: TODO登録画面を作成する。(7)
 
 STEP 09では「作成したTODOレコードの内容を完了画面に表示」します。
+
+## サービス
+### インタフェース
+
+```Java:TodoService
+	Todo findById(String loginId, int id);
+```
+
+### 実装クラス
+
+```Java:TodoServiceImpl
+	@Transactional(readOnly = true)
+	@Override
+	public Todo findById(String loginId, int id) {
+		TodoCriteria crit = new TodoCriteria();
+		Criteria c = crit.createCriteria();
+		c.andIdEqualTo(id);
+		c.andPostedByEqualTo(loginId);
+		c.andDeletedFlgEqualTo(DeletedFlag.NOT_DELETED);
+		List<Todo> list = todoMapper.selectByExample(crit);
+		if (list.isEmpty()) {
+			return null;
+		}
+		return list.get(0);
+	}
+```
+
+## コントローラ
+### 実装クラス
+
+```Java:TodoCreateControllerImpl
+	@Override
+	public ModelAndView finish(int id, Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_FINISH);
+		Todo todo = todoService.findById(auth.getName(), id);
+		if (todo != null) {
+			mav.addObject(todo);
+		}
+		return mav;
+	}
+```
+
+## JSP
+
+```HTML:/WEB-INF/tiles/secure/todo/create/finish.jsp
+<h2>TODO登録</h2>
+<s:nestedPath path="todo">
+	<div class="form-group">
+		<f:label path="dueDate">期日</f:label>
+		<f:input path="dueDate" cssClass="form-control" readonly="true" />
+	</div>
+	<div class="form-group">
+		<f:label path="description">内容</f:label>
+		<f:textarea path="description" cssClass="form-control" readonly="true" />
+	</div>
+	<div class="form-group">
+		<f:label path="id">TODO番号</f:label>
+		<f:input path="id" cssClass="form-control" readonly="true" />
+	</div>
+	<div class="form-group">
+		<f:label path="postedAt">登録日時</f:label>
+		<f:input path="postedAt" cssClass="form-control" readonly="true" />
+	</div>
+</s:nestedPath>
+```
 
 以上。

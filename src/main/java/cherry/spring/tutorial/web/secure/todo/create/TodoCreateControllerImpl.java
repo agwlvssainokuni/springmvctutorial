@@ -110,6 +110,10 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	public ModelAndView finish(int id, Authentication auth, Locale locale,
 			SitePreference sitePref, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE_FINISH);
+		Todo todo = todoService.findById(auth.getName(), id);
+		if (todo != null) {
+			mav.addObject(todo);
+		}
 		return mav;
 	}
 

@@ -16,11 +16,16 @@
 
 package cherry.spring.tutorial.web.secure.todo;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cherry.spring.common.custom.DeletedFlag;
 import cherry.spring.tutorial.db.gen.dto.Todo;
+import cherry.spring.tutorial.db.gen.dto.TodoCriteria;
+import cherry.spring.tutorial.db.gen.dto.TodoCriteria.Criteria;
 import cherry.spring.tutorial.db.gen.mapper.TodoMapper;
 
 @Service
@@ -37,6 +42,21 @@ public class TodoServiceImpl implements TodoService {
 			return null;
 		}
 		return todo.getId();
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public Todo findById(String loginId, int id) {
+		TodoCriteria crit = new TodoCriteria();
+		Criteria c = crit.createCriteria();
+		c.andIdEqualTo(id);
+		c.andPostedByEqualTo(loginId);
+		c.andDeletedFlgEqualTo(DeletedFlag.NOT_DELETED);
+		List<Todo> list = todoMapper.selectByExample(crit);
+		if (list.isEmpty()) {
+			return null;
+		}
+		return list.get(0);
 	}
 
 }

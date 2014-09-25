@@ -76,12 +76,12 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request) {
 
-		Integer id = 0;
-
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
 			return mav;
 		}
+
+		Integer id = 0;
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
 				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,

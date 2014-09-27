@@ -46,7 +46,7 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	@Override
 	public TodoCreateForm getForm() {
 		TodoCreateForm form = new TodoCreateForm();
-		form.setDueDate(bizdateHelper.today().minusDays(defaultOffsetOfDueDate));
+		form.setDueDate(bizdateHelper.today().plusDays(defaultOffsetOfDueDate));
 		return form;
 	}
 

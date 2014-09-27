@@ -34,6 +34,7 @@
 				<value>message/form</value>
 				<value>message/page</value>
 				<value>message/validation</value>
+				<value>message/preseterror</value>
 			</list>
 		</property>
 	</bean>

@@ -614,11 +614,11 @@ public class TodoCreateForm implements Serializable {
 コントローラのインタフェースでアノテーション`@ModelAttribute()`を付与したメソッド`TodoCreateForm getForm()`が返却する値が、フォームの初期値として使用されます。
 具体的な初期値の構成方法を下記に示します。
 
-フォームの「期日」の初期値の仕様は、前述の通り「7日後」です。値の算出式は「『今日の日付』-『7日(設定値)』」ですので、以下の手順で処理します。
+フォームの「期日」の初期値の仕様は、前述の通り「7日後」です。値の算出式は「『今日の日付』+『7日(設定値)』」ですので、以下の手順で処理します。
 
 *	初期値「期日」の「オフセット」を設定ファイルから詠込む。
 *	「今日の日付」を取得する。
-*	「『今日の日付』-『オフセット』」を算出する。
+*	「『今日の日付』+『オフセット』」を算出する。
 
 ### 初期値「期日」の「オフセット」を設定ファイルから詠込む
 昔ながらのフレームワークでは、設定ファイルから「設定値を取得する」という「処理」をコーディングしました。しかし、Spring FrameworkではDI (Dependency Injection) の機構によって、「値をInjectさせる」という方式をとります。業務ロジックのコードが実行される時点で、既に「設定値がインスタンス変数に入っている」状態です。「設定値を取得する」という処理をコーディングする必要はありません。
@@ -641,7 +641,7 @@ tutorial.web.secure.todo.create.defaultOffsetOfDueDate=7
 
 本チュートリアルもこの考え方に則り、業務日付を今日の日付とします。業務日付は`BizdateHelper#today()`メソッドで取得します。
 
-### 「『今日の日付』-『オフセット』」を算出する
+### 「『今日の日付』+『オフセット』」を算出する
 `BizdteHelper#today()`メソッドを呼出すために、コントローラの実装クラスに`BizdateHelper`のインスタンスがInjectされるように構成します。具体的には、インスタンス変数`private BizdateHelper bizdateHelper`を定義し、これにアノテーション`@Autowired`を付与します。
 
 以上を踏まえ、コントローラの実装クラスを、以下の通り実装します。
@@ -653,7 +653,7 @@ tutorial.web.secure.todo.create.defaultOffsetOfDueDate=7
 	@Override
 	public TodoCreateForm getForm() {
 		TodoCreateForm form = new TodoCreateForm();
-		form.setDueDate(bizdateHelper.today().minusDays(defaultOffsetOfDueDate));
+		form.setDueDate(bizdateHelper.today().plusDays(defaultOffsetOfDueDate));
 		return form;
 	}
 ```
@@ -686,6 +686,7 @@ STEP 05では「画面に入力フォーム(form要素)を実装」します。
 ```
 
 また、「確認画面」に確認用の表示します。あわせて、「登録処理」に受渡すための隠し入力フォームを配置します。
+更新系の処理を実行する際は、「ワンタイムトークンの照合」により、多重POST (具体的には、誤って「登録」ボタンを二回以上押下してしまう誤操作) による意図しない更新を抑止します。この制御のために、JSP側でワンタイムトークンの払出しと`<input type="hidden" />`タグ埋込み、サーバ側で払出されたワンタイムトークンの照合を実装します。具体的には、JSP側では隠し入力フォームに`<mytag:onetimetoken />`を配置します。
 
 ```HTML:/WEB-INF/tiles/secure/todo/create/confirm.jsp
 <h2>TODO登録</h2>
@@ -704,6 +705,7 @@ STEP 05では「画面に入力フォーム(form要素)を実装」します。
 	<f:hidden path="dueDate" id="dueDateHidden" />
 	<f:hidden path="description" id="descriptionHidden" />
 	<f:button type="submit" class="btn btn-default">登録</f:button>
+	<mytag:onetimetoken />
 </f:form>
 ```
 
@@ -713,6 +715,14 @@ STEP 05では「画面に入力フォーム(form要素)を実装」します。
 STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装」します。
 
 ## コントローラ
+
+```Java:TodoCreateControllerImpl
+	@Autowired
+	private LogicalErrorHelper logicalErrorHelper;
+
+	@Autowired
+	private OneTimeTokenValidator oneTimeTokenValidator;
+```
 
 ```Java:TodoCreateControllerImpl#confirm
 	@Override
@@ -741,6 +751,12 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 			return mav;
 		}
 
+		if (!oneTimeTokenValidator.isValid(request)) {
+			logicalErrorHelper.reject(binding, LogicalError.OneTimeTokenError);
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
 		Integer id = 0;
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
@@ -765,6 +781,7 @@ STEP 07では「妥当性検証NGの場合のメッセージ表示を画面に�
 <s:hasBindErrors name="todoCreateForm">
 	<div class="form-group has-error">
 		<div class="help-block bg-danger">
+			<f:errors path="todoCreateForm" element="div" />
 			<s:nestedPath path="todoCreateForm">
 				<f:errors path="dueDate" element="div" />
 				<f:errors path="description" element="div" />

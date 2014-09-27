@@ -32,6 +32,9 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
 import cherry.spring.common.helper.bizdate.BizdateHelper;
+import cherry.spring.common.helper.logicalerror.LogicalError;
+import cherry.spring.common.helper.logicalerror.LogicalErrorHelper;
+import cherry.spring.common.helper.onetimetoken.OneTimeTokenValidator;
 import cherry.spring.tutorial.web.PathDef;
 
 @Controller
@@ -43,10 +46,16 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	@Autowired
 	private BizdateHelper bizdateHelper;
 
+	@Autowired
+	private LogicalErrorHelper logicalErrorHelper;
+
+	@Autowired
+	private OneTimeTokenValidator oneTimeTokenValidator;
+
 	@Override
 	public TodoCreateForm getForm() {
 		TodoCreateForm form = new TodoCreateForm();
-		form.setDueDate(bizdateHelper.today().minusDays(defaultOffsetOfDueDate));
+		form.setDueDate(bizdateHelper.today().plusDays(defaultOffsetOfDueDate));
 		return form;
 	}
 
@@ -77,6 +86,12 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 			HttpServletRequest request) {
 
 		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
+			return mav;
+		}
+
+		if (!oneTimeTokenValidator.isValid(request)) {
+			logicalErrorHelper.reject(binding, LogicalError.OneTimeTokenError);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
 			return mav;
 		}

@@ -55,32 +55,48 @@
 				<bean
 					class="org.springframework.format.number.NumberFormatAnnotationFormatterFactory" />
 				<bean
-					class="org.springframework.format.datetime.joda.JodaDateTimeFormatAnnotationFormatterFactory" />
-				<bean
-					class="cherry.spring.common.custom.format.CustomDateTimeFormatAnnotationFormatterFactory" />
-				<bean
 					class="cherry.spring.common.custom.format.IpAddrFormatAnnotationFormatterFactory" />
 			</set>
 		</property>
 		<property name="formatterRegistrars">
 			<set>
 				<bean class="org.springframework.format.datetime.DateFormatterRegistrar" />
-			</set>
-		</property>
-		<property name="converters">
-			<set>
-				<bean class="cherry.spring.common.custom.converter.LocalDateConverter" />
-				<bean class="cherry.spring.common.custom.converter.LocalTimeConverter" />
-				<bean class="cherry.spring.common.custom.converter.LocalDateTimeConverter" />
-				<bean class="cherry.spring.common.custom.converter.SecureStringConverter" />
-				<bean class="cherry.spring.common.custom.converter.SecureIntegerConverter" />
-				<bean class="cherry.spring.common.custom.converter.SecureLongConverter" />
 				<bean
-					class="cherry.spring.common.custom.converter.SecureBigIntegerConverter" />
-				<bean
-					class="cherry.spring.common.custom.converter.SecureBigDecimalConverter" />
-				<bean class="cherry.spring.common.custom.converter.DeletedFlagConverter" />
-				<bean class="cherry.spring.common.custom.converter.FlagCodeConverter" />
+					class="cherry.spring.common.custom.format.DelegateFormatterRegistrar">
+					<property name="formatters">
+						<list>
+							<bean
+								class="org.springframework.format.datetime.joda.JodaTimeFormatterRegistrar">
+								<property name="dateFormatter">
+									<bean class="org.joda.time.format.DateTimeFormat"
+										factory-method="forPattern">
+										<constructor-arg value="${common.format.date}" />
+									</bean>
+								</property>
+								<property name="timeFormatter">
+									<bean class="org.joda.time.format.DateTimeFormat"
+										factory-method="forPattern">
+										<constructor-arg value="${common.format.time}" />
+									</bean>
+								</property>
+								<property name="dateTimeFormatter">
+									<bean class="org.joda.time.format.DateTimeFormat"
+										factory-method="forPattern">
+										<constructor-arg value="${common.format.datetime}" />
+									</bean>
+								</property>
+							</bean>
+							<bean
+								class="cherry.spring.common.custom.format.CustomDateTimeFormatAnnotationFormatterFactory" />
+							<bean
+								class="cherry.spring.common.custom.converter.JodaTimeSqlConverterRegistrar" />
+							<bean
+								class="cherry.spring.common.custom.converter.SecureTypeSqlConverterRegistrar" />
+							<bean
+								class="cherry.spring.common.custom.converter.CodeSqlConverterRegistrar" />
+						</list>
+					</property>
+				</bean>
 			</set>
 		</property>
 	</bean>

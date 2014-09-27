@@ -12,6 +12,7 @@
 <s:hasBindErrors name="todoCreateForm">
 	<div class="form-group has-error">
 		<div class="help-block bg-danger">
+			<f:errors path="todoCreateForm" element="div" />
 			<s:nestedPath path="todoCreateForm">
 				<f:errors path="dueDate" element="div" />
 				<f:errors path="description" element="div" />

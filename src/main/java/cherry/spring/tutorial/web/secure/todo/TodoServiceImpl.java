@@ -44,6 +44,28 @@ public class TodoServiceImpl implements TodoService {
 		return todo.getId();
 	}
 
+	@Transactional
+	@Override
+	public boolean update(String loginId, int id, Todo todo) {
+
+		Todo record = new Todo();
+		record.setDueDate(todo.getDueDate());
+		record.setDescription(todo.getDescription());
+		record.setDoneFlg(todo.getDoneFlg());
+		record.setDoneAt(todo.getDoneAt());
+		record.setLockVersion(todo.getLockVersion() + 1);
+
+		TodoCriteria crit = new TodoCriteria();
+		Criteria c = crit.createCriteria();
+		c.andIdEqualTo(id);
+		c.andPostedByEqualTo(loginId);
+		c.andDeletedFlgEqualTo(DeletedFlag.NOT_DELETED);
+		c.andLockVersionEqualTo(todo.getLockVersion());
+
+		int count = todoMapper.updateByExampleSelective(record, crit);
+		return count == 1;
+	}
+
 	@Transactional(readOnly = true)
 	@Override
 	public Todo findById(String loginId, int id) {

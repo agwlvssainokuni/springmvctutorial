@@ -374,6 +374,7 @@ public class LoginControllerImpl implements LoginController {
 	*	登録処理
 		*	メソッド: `execute`
 			*	引数として受渡されたフォームとバインド結果から入力値の妥当性を検証する。
+			*	多重POSTを検証する。(ワンタイムトークン方式)
 			*	入力値をフォームから取得し、DBにTODOレコードを作成する。
 			*	`ModelAndView`を作りリダイレクト先のURIパスを設定する。作成したレコードの主キー(id)をリクエストパラメタとして受渡す。
 			*	形成した`ModelAndView`を返却する。
@@ -392,6 +393,7 @@ public class LoginControllerImpl implements LoginController {
 	*	単項目チェック (入力値の字面上の様式をチェックする)。
 	*	項目間チェック (複数項目に亘る依存性に基づいて入力値をチェックする)。
 	*	データ整合性チェック (マスタテーブル、区分値、設定値との整合性をチェックする)。
+	*	多重POSTチェック (ワンタイムトークンを照合する)
 *	主たる業務ロジックを実行する。
 	*	DBの照会や更新処理 (CRUD)。
 	*	メッセージキューの操作 (非同期処理を実行登録)。
@@ -621,9 +623,9 @@ public class TodoCreateForm implements Serializable {
 *	「『今日の日付』+『オフセット』」を算出する。
 
 ### 初期値「期日」の「オフセット」を設定ファイルから詠込む
-昔ながらのフレームワークでは、設定ファイルから「設定値を取得する」という「処理」をコーディングしました。しかし、Spring FrameworkではDI (Dependency Injection) の機構によって、「値をInjectさせる」という方式をとります。業務ロジックのコードが実行される時点で、既に「設定値がインスタンス変数に入っている」状態です。「設定値を取得する」という処理をコーディングする必要はありません。
+昔ながらのフレームワークでは、設定ファイルから「設定値を取得する」という「処理」をコーディングしました。しかし、Spring FrameworkではDI (Dependency Injection) の機構によって、「値を注入させる」という方式をとります。業務ロジックのコードが実行される時点で、既に「設定値がインスタンス変数に入っている」状態です。「設定値を取得する」という処理をコーディングする必要はありません。
 
-具体的には、Spring Frameworkの`PropertyPlaceholderConfigurer` (アプリケーションコンテキスト設定ファイルの`<context:property-placeholder />`タグと等価) を使用します。これにより「インスタンス変数にアノテーション`@Value("${プロパティのキー名}")`を付与することで、プロパティファイル (.properties) の設定値がInjectされる」ようになります。
+具体的には、Spring Frameworkの`PropertyPlaceholderConfigurer` (アプリケーションコンテキスト設定ファイルの`<context:property-placeholder />`タグと等価) を使用します。これにより「インスタンス変数にアノテーション`@Value("${プロパティのキー名}")`を付与することで、プロパティファイル (.properties) の設定値が注入される」ようになります。
 
 以上を踏まえ、プロパティファイルとコントローラの実装クラスを、以下の通り実装します。
 
@@ -642,7 +644,7 @@ tutorial.web.secure.todo.create.defaultOffsetOfDueDate=7
 本チュートリアルもこの考え方に則り、業務日付を今日の日付とします。業務日付は`BizdateHelper#today()`メソッドで取得します。
 
 ### 「『今日の日付』+『オフセット』」を算出する
-`BizdteHelper#today()`メソッドを呼出すために、コントローラの実装クラスに`BizdateHelper`のインスタンスがInjectされるように構成します。具体的には、インスタンス変数`private BizdateHelper bizdateHelper`を定義し、これにアノテーション`@Autowired`を付与します。
+`BizdteHelper#today()`メソッドを呼出すために、コントローラの実装クラスに`BizdateHelper`のインスタンスが注入されるように構成します。具体的には、インスタンス変数`private BizdateHelper bizdateHelper`を定義し、これにアノテーション`@Autowired`を付与します。
 
 以上を踏まえ、コントローラの実装クラスを、以下の通り実装します。
 
@@ -685,8 +687,9 @@ STEP 05では「画面に入力フォーム(form要素)を実装」します。
 </f:form>
 ```
 
-また、「確認画面」に確認用の表示します。あわせて、「登録処理」に受渡すための隠し入力フォームを配置します。
-更新系の処理を実行する際は、「ワンタイムトークンの照合」により、多重POST (具体的には、誤って「登録」ボタンを二回以上押下してしまう誤操作) による意図しない更新を抑止します。この制御のために、JSP側でワンタイムトークンの払出しと`<input type="hidden" />`タグ埋込み、サーバ側で払出されたワンタイムトークンの照合を実装します。具体的には、JSP側では隠し入力フォームに`<mytag:onetimetoken />`を配置します。
+また、「確認画面」に入力値を再表示するととみに、後続の「登録処理」に受渡すための隠し入力フォームを配置します。
+
+更新系の処理を実行する際は、「ワンタイムトークンを照合」するkとで、多重POST (具体的には、誤って「登録」ボタンを二回以上押下してしまう誤操作) による意図しない更新を抑止します。この制御のために、JSP側でワンタイムトークンの払出しと`<input type="hidden" />`タグ埋込み、サーバ側で払出されたワンタイムトークンの照合を実装します。具体的には、JSP側では隠し入力フォームに`<mytag:onetimetoken />`を配置します。
 
 ```HTML:/WEB-INF/tiles/secure/todo/create/confirm.jsp
 <h2>TODO登録</h2>
@@ -715,6 +718,21 @@ STEP 05では「画面に入力フォーム(form要素)を実装」します。
 STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装」します。
 
 ## コントローラ
+ブラウザからPOSTされたデータは「全てのデータ値の妥当性を検証」します。
+隠し入力フォームでデータをPOSTする場合も、「確認画面」を表示する際に妥当性検証されてはいますが、不正な操作でPOSTされる危険性を排除することはできないので、同じ妥当性検証を実施しなければなりません。なお、多重POSTチェックだけは実際の更新処理が発生する「登録処理」でのみ実施します。
+
+入力値の妥当性の検証のうち「単項目チェック (入力値の字面上の様式をチェック)」については、Spring MVCの標準のバリデーション機構により検証します。Spring MVCは、フォームに指定したアノテーションに従い入力値を検証し、その結果が`BindingResult`にセットされて、コントローラのメソッドに渡されます。検証NGか否かは`BindigResult#hasErrors()`メソッドで判定します。検証NGのメッセージは、JSPタグ`<s:errors />`を使用して画面に表示します。メッセージを形成するために、コントローラ側で実施する処理は特にありません。
+
+入力値の妥当性の検証のうち「項目間チェック (複数項目に亘る依存性に基づいて入力値をチェック)」「データ整合性チェック (マスタテーブル、区分値、設定値との整合性をチェック)」「多重POSTチェック (ワンタイムトークンを照合)」については、業務ロジックとして個々に実装します。ただし、画面に検証NGのメッセージを表示する仕組みはSpring MVCに則ります。具体的には、`BindingResult`に入力エラー情報をセットします。
+`BindingResult`へは画面に表示するメッセージのID(コード)をセットします。Spring MVCは、プロパティファイル(`message/error.properties`, `message/preseterror.properties`)から、セットされたID(コード)に対応するメッセージの文言を取得し画面に表示します。
+`BindingResult`のメソッドを直接呼出してもメッセージのID(コード)をセットすることはできますが、原則として、補助機能として提供されている`LogicalErrorHelper`を使用します。
+
+ワンタイムトークンの照合は補助機能として提供されている`OneTimeTokenValidator`を使用します(Spring MVCの標準APIとしては提供されていません)。
+
+以上を踏まえ、下記の通りコントローラを実装します。
+
+### 実装クラス
+補助機能`LogicalErrorHelper`, `OneTimeTokenValidator`を注入します。
 
 ```Java:TodoCreateControllerImpl
 	@Autowired
@@ -723,6 +741,8 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;
 ```
+
+「確認画面」を表示する際に入力値の妥当性を検証します。検証NGの場合は「入力画面」を表示します。
 
 ```Java:TodoCreateControllerImpl#confirm
 	@Override
@@ -739,6 +759,9 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 		return mav;
 	}
 ```
+
+「登録処理」を実行する際も入力値の妥当性を検証します。検証NGの場合は「入力画面」を表示します(直前の「確認画面」に遷移する訳では無い点に注意してください)。
+また、「登録処理」では実際の更新処理が発生しますので、ワンタイムトークンを照合します。照合NGの場合は、エラーメッセージの情報を`BindingResult`にセットし、「入力画面」を表示します。
 
 ```Java:TodoCreateControllerImpl#execute
 	@Override
@@ -775,6 +798,14 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 STEP 07では「妥当性検証NGの場合のメッセージ表示を画面に実装」します。
 
 ## JSP
+妥当性検証NGの情報は、コントローラから引渡された`BindingResult`に格納されています。JSPからはタグを使用して照会します。
+
+*	`<s:hasBindErrors name="フォーム名">...</s:hasBindErrors>`: エラーがある場合、タグの内側の内容を画面に表示します。
+*	`<s:errors path="フォーム名" />`: フォームそのもののエラーメッセージを表示する。
+*	`<s:errors path="フォーム名.プロパティ名" />`: フォームのプロパティのエラーメッセージを表示する。
+*	`<s:nestedPath path="フォーム名">...</s:nestedPath>`: このタグの内側では、`<s:errors path="フォーム名.プロパティ名" />`を`<:errors path="プロパティ名" />`の形で記述できる(フォーム名を省ける)。
+
+これらを使用し、下記のようにJSPを実装します。
 
 ```HTML:/WEB-INF/tiles/secure/todo/create/init.jsp
 <h2>TODO登録</h2>
@@ -805,11 +836,13 @@ STEP 07では「妥当性検証NGの場合のメッセージ表示を画面に�
 </f:form>
 ```
 
-## message/form.propertiesファイル (表示文言)
+## message/form.propertiesファイル (入力項目の表示名)
+入力項目の表示名を「フォーム名.プロパティ=表示名」の形式でプロパティファイルを作成し、これをSpring MVCに読込ませるせることで、画面に表示されるようになります。フォームクラスを設計書から生成する場合は、項目の表示名のプロパティファイルも一緒に生成することが多いです。
+本チュートリアルでは、`message/form.properties`に定義します。
 
 ```Ini:message/form.properties
-todoCreateForm.dueDate=\u671F\u65E5
-todoCreateForm.description=\u5185\u5BB9
+todoCreateForm.dueDate=期日
+todoCreateForm.description=内容
 ```
 
 
@@ -817,7 +850,42 @@ todoCreateForm.description=\u5185\u5BB9
 
 STEP 08では「TODO登録画面の主たる業務ロジックである「DBにTODOレコードを作成する」を実装」します。
 
+## クラス構成
+### サービス
+「サービス」という層を設け、コントローラのメソッドからサービスのメソッドを呼出す構成とします。サービスの位置づけは「業務ロジックの処理の本体」です。典型的には、サービスのメソッドがトランザクションの単位となります。
+
+### DAO (Data Access Object)
+実際のプロジェクトでは、DAO (Data Access Object) という層を設けてDBアクセスを抽象化することが一般的です。これにより、DBアクセス処理の詳細を隠蔽し、複数の機能から共用しやすくする、また、変更が発生した場合に変更箇所を局所化するという効果を期待します。
+サービスはDAOを呼出してDBアクセスします。
+
+本チュートリアルでは、Spring MVCフレームワークの使い方を把握することを主眼とし、DAOによる抽象化は行いません。サービスのメソッドの中で、直接DBアクセスフレームワーク (MyBatis, Querydsl SQL) を呼出します。
+実際のプロジェクトでは、プロジェクトの規約に従ってください。
+
+
+## DBアクセスの仕方
+### DBアクセスフレームワーク
+DBアクセスにあたっては [MyBatis](http://mybatis.github.io/mybatis-3/ "MyBatis") をメインとして使用します。動的に条件を組立てるSQLを発行するケースでは [Querydsl](http://www.querydsl.com "Querydsl") (特に [Querydsl SQL](https://github.com/querydsl/querydsl/tree/master/querydsl-sql "Querydsl SQL")) を使用します。特に、コード生成ツール[MyBatis Generator](http://mybatis.github.io/generator/ "MyBatis Generator"), [Querydsl codegen](https://github.com/querydsl/codegen "Querydsl codegen")で生成したプログラムを使用します。
+TODO登録画面では、動的なSQLを必要としないため、MyBatisを使用します。
+
+### MyBatisの構成
+MyBatisはツールで生成した下記の構成要素を使用します。これらはテーブルごとに1セットずつ生成されます。
+
+*	DTO (Data Transfer Object): テーブルのレコードのデータを保持するBeanです。Mapperインタフェースのメソッドの引数や返却値として使用されます。
+*	Mapperインタフェース: テーブルの基本的なCRUDをメソッドとして提供します。
+*	Criteriaクラス: RUDの検索条件 (WHERE句) を表現します。
+*	SQLプロバイダ: 実際に発行されるSQLを組立てます。Mapperインタフェースを呼出すと、間接的にSQLプロバイダが呼出されます。通常は、SQLプロバイダを直接呼出すことはありません。
+
+### トランザクション制御
+メソッドにアノテーション`@Transactional`を指定することで、当該メソッドがトランザクション制御の単位となります。これはSpring Frameworkの宣言的トランザクション制御の仕組みを使用しています。なお、アノテーションは実装クラス側のメソッドに指定してください。インタフェースのメソッドに指定してもトランザクション制御されません。
+
+アノテーション`@Transactional`を指定したメソッドの中で、アノテーション`@Transactional`を指定した別のメソッドを呼出すことも可能です。呼出されたメソッドがどのようにトランザクション制御されるかは、アノテーションに指定した`propagation`属性に依存します。特に指定しなければ、呼出し元と同じトランザクションとして実行されます。
+
+アノテーション`@Transactional`は、`readOnly`という属性を持っています。処理が参照のみの場合は`@Transactional(readOnly=true)`と指定してください。更新系処理を含むトランザクションはマスタ、参照系処理のみのトランザクションはレプリカへDB接続するよう振分ける場合に、`readOnly`の指定が判断基準となります。
+
+
 ## サービス
+下記の通りサービスを実装します。
+
 ### インタフェース
 
 ```Java:TodoService
@@ -851,6 +919,8 @@ public class TodoServiceImpl implements TodoService {
 ```
 
 ## コントローラ
+下記の通りコントローラを実装します。
+
 ### サービスをDIする
 
 ```Java:TodoCreateControllerImpl
@@ -898,6 +968,8 @@ public class TodoServiceImpl implements TodoService {
 STEP 09では「作成したTODOレコードの内容を完了画面に表示」します。
 
 ## サービス
+登録したTODOレコードを照会するDBアクセス処理を作成します。登録した利用者以外は参照できないよう条件を組立てます。また、削除フラグが立っていない (= 論理削除されていない) という条件も指定します。
+
 ### インタフェース
 
 ```Java:TodoService
@@ -924,6 +996,18 @@ STEP 09では「作成したTODOレコードの内容を完了画面に表示」
 ```
 
 ## コントローラ
+サービスを呼出してTODOレコードのデータを取得し、有為なデータが得られたらJSPに受渡します。
+
+下記のコードでは`ModelAndView#addObject(Object)`メソッドを使用しています。同メソッドを使用すると、JSPから参照する際のオブジェクト名を一定の規則に従って自動で生成してくれます。
+オブジェクト名の生成ルールは下記の通りです。
+
+*	コレクション以外: クラス名のシンプル名(= パッケージ名なし)の先頭を小文字に変換した名前。例: camelCase
+*	コレクション: コレクションが保持するクラスから名前を決定し、その後ろにコレクション名を追加した名前。例: camelCaseList, camelCaseSet
+
+明示的にオブジェクト名を指定する`addObject(String, Object)`メソッドもあります。必要に応じて使い分けてください。
+基本的に`addObject(Object)`を使用することとし、クラス名から生成した名前がデータの意味を十分に表さない場合は`addObject(String, Object)`を使用するという使い分けが典型的でしょう (例えば、`Todo todo`ならば`addObject(todo)`、`Integer id`ならば`addObject("id", id)`)。
+本チュートリアルでもそのように使い分けます。
+
 ### 実装クラス
 
 ```Java:TodoCreateControllerImpl
@@ -940,6 +1024,8 @@ STEP 09では「作成したTODOレコードの内容を完了画面に表示」
 ```
 
 ## JSP
+コントローラから受渡されたTODOレコードを画面に表示します。
+表示の仕方は様々なバリエーションがありますが、ここでは「入力画面」「確認画面」「完了画面」の見た目の印象を揃えることを意図し入力フォームと同じ部品(`<f:input />`や`<f:textarea />`)を使用しています。
 
 ```HTML:/WEB-INF/tiles/secure/todo/create/finish.jsp
 <h2>TODO登録</h2>
@@ -962,5 +1048,8 @@ STEP 09では「作成したTODOレコードの内容を完了画面に表示」
 	</div>
 </s:nestedPath>
 ```
+
+なお、部品を使うことで、日付データ、日時データが自動的に統一書式で整形されます。これも部品を使用した意図の一つです。
+部品を使わない場合は、`<s:bind path="dueDate">${status.value}</s:bind>`という書き方をすることで、統一書式で整形することができます。
 
 以上。

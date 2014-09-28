@@ -850,7 +850,42 @@ todoCreateForm.description=内容
 
 STEP 08では「TODO登録画面の主たる業務ロジックである「DBにTODOレコードを作成する」を実装」します。
 
+## クラス構成
+### サービス
+「サービス」という層を設け、コントローラのメソッドからサービスのメソッドを呼出す構成とします。サービスの位置づけは「業務ロジックの処理の本体」です。典型的には、サービスのメソッドがトランザクションの単位となります。
+
+### DAO (Data Access Object)
+実際のプロジェクトでは、DAO (Data Access Object) という層を設けてDBアクセスを抽象化することが一般的です。これにより、DBアクセス処理の詳細を隠蔽し、複数の機能から共用しやすくする、また、変更が発生した場合に変更箇所を局所化するという効果を期待します。
+サービスはDAOを呼出してDBアクセスします。
+
+本チュートリアルでは、Spring MVCフレームワークの使い方を把握することを主眼とし、DAOによる抽象化は行いません。サービスのメソッドの中で、直接DBアクセスフレームワーク (MyBatis, Querydsl SQL) を呼出します。
+実際のプロジェクトでは、プロジェクトの規約に従ってください。
+
+
+## DBアクセスの仕方
+### DBアクセスフレームワーク
+DBアクセスにあたっては [MyBatis](http://mybatis.github.io/mybatis-3/ "MyBatis") をメインとして使用します。動的に条件を組立てるSQLを発行するケースでは [Querydsl](http://www.querydsl.com "Querydsl") (特に [Querydsl SQL](https://github.com/querydsl/querydsl/tree/master/querydsl-sql "Querydsl SQL")) を使用します。特に、コード生成ツール[MyBatis Generator](http://mybatis.github.io/generator/ "MyBatis Generator"), [Querydsl codegen](https://github.com/querydsl/codegen "Querydsl codegen")で生成したプログラムを使用します。
+TODO登録画面では、動的なSQLを必要としないため、MyBatisを使用します。
+
+### MyBatisの構成
+MyBatisはツールで生成した下記の構成要素を使用します。これらはテーブルごとに1セットずつ生成されます。
+
+*	DTO (Data Transfer Object): テーブルのレコードのデータを保持するBeanです。Mapperインタフェースのメソッドの引数や返却値として使用されます。
+*	Mapperインタフェース: テーブルの基本的なCRUDをメソッドとして提供します。
+*	Criteriaクラス: RUDの検索条件 (WHERE句) を表現します。
+*	SQLプロバイダ: 実際に発行されるSQLを組立てます。Mapperインタフェースを呼出すと、間接的にSQLプロバイダが呼出されます。通常は、SQLプロバイダを直接呼出すことはありません。
+
+### トランザクション制御
+メソッドにアノテーション`@Transactional`を指定することで、当該メソッドがトランザクション制御の単位となります。これはSpring Frameworkの宣言的トランザクション制御の仕組みを使用しています。なお、アノテーションは実装クラス側のメソッドに指定してください。インタフェースのメソッドに指定してもトランザクション制御されません。
+
+アノテーション`@Transactional`を指定したメソッドの中で、アノテーション`@Transactional`を指定した別のメソッドを呼出すことも可能です。呼出されたメソッドがどのようにトランザクション制御されるかは、アノテーションに指定した`propagation`属性に依存します。特に指定しなければ、呼出し元と同じトランザクションとして実行されます。
+
+アノテーション`@Transactional`は、`readOnly`という属性を持っています。処理が参照のみの場合は`@Transactional(readOnly=true)`と指定してください。更新系処理を含むトランザクションはマスタ、参照系処理のみのトランザクションはレプリカへDB接続するよう振分ける場合に、`readOnly`の指定が判断基準となります。
+
+
 ## サービス
+下記の通りサービスを実装します。
+
 ### インタフェース
 
 ```Java:TodoService
@@ -884,6 +919,8 @@ public class TodoServiceImpl implements TodoService {
 ```
 
 ## コントローラ
+下記の通りコントローラを実装します。
+
 ### サービスをDIする
 
 ```Java:TodoCreateControllerImpl
@@ -931,6 +968,8 @@ public class TodoServiceImpl implements TodoService {
 STEP 09では「作成したTODOレコードの内容を完了画面に表示」します。
 
 ## サービス
+登録したTODOレコードを照会するDBアクセス処理を作成します。登録した利用者以外は参照できないよう条件を組立てます。また、削除フラグが立っていない (= 論理削除されていない) という条件も指定します。
+
 ### インタフェース
 
 ```Java:TodoService
@@ -957,6 +996,18 @@ STEP 09では「作成したTODOレコードの内容を完了画面に表示」
 ```
 
 ## コントローラ
+サービスを呼出してTODOレコードのデータを取得し、有為なデータが得られたらJSPに受渡します。
+
+下記のコードでは`ModelAndView#addObject(Object)`メソッドを使用しています。同メソッドを使用すると、JSPから参照する際のオブジェクト名を一定の規則に従って自動で生成してくれます。
+オブジェクト名の生成ルールは下記の通りです。
+
+*	コレクション以外: クラス名のシンプル名(= パッケージ名なし)の先頭を小文字に変換した名前。例: camelCase
+*	コレクション: コレクションが保持するクラスから名前を決定し、その後ろにコレクション名を追加した名前。例: camelCaseList, camelCaseSet
+
+明示的にオブジェクト名を指定する`addObject(String, Object)`メソッドもあります。必要に応じて使い分けてください。
+基本的に`addObject(Object)`を使用することとし、クラス名から生成した名前がデータの意味を十分に表さない場合は`addObject(String, Object)`を使用するという使い分けが典型的でしょう (例えば、`Todo todo`ならば`addObject(todo)`、`Integer id`ならば`addObject("id", id)`)。
+本チュートリアルでもそのように使い分けます。
+
 ### 実装クラス
 
 ```Java:TodoCreateControllerImpl
@@ -973,6 +1024,8 @@ STEP 09では「作成したTODOレコードの内容を完了画面に表示」
 ```
 
 ## JSP
+コントローラから受渡されたTODOレコードを画面に表示します。
+表示の仕方は様々なバリエーションがありますが、ここでは「入力画面」「確認画面」「完了画面」の見た目の印象を揃えることを意図し入力フォームと同じ部品(`<f:input />`や`<f:textarea />`)を使用しています。
 
 ```HTML:/WEB-INF/tiles/secure/todo/create/finish.jsp
 <h2>TODO登録</h2>
@@ -995,5 +1048,8 @@ STEP 09では「作成したTODOレコードの内容を完了画面に表示」
 	</div>
 </s:nestedPath>
 ```
+
+なお、部品を使うことで、日付データ、日時データが自動的に統一書式で整形されます。これも部品を使用した意図の一つです。
+部品を使わない場合は、`<s:bind path="dueDate">${status.value}</s:bind>`という書き方をすることで、統一書式で整形することができます。
 
 以上。

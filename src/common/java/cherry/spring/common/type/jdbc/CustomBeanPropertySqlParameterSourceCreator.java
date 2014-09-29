@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.type.jdbc;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Component;
 
-public interface LogicalErrorHelper {
+@Component
+public class CustomBeanPropertySqlParameterSourceCreator implements
+		SqlParameterSourceCreator {
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
-
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
-
-	MessageSourceResolvable resolve(String code);
-
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
+	@Override
+	public SqlParameterSource create(Object object) {
+		return new CustomBeanPropertySqlParameterSource(object);
+	}
 
 }

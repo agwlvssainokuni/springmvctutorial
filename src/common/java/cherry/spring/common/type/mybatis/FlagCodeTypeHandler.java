@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.type.mybatis;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+import org.apache.ibatis.type.MappedTypes;
 
-public interface LogicalErrorHelper {
+import cherry.spring.common.type.FlagCode;
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
+@MappedTypes(FlagCode.class)
+public class FlagCodeTypeHandler extends EnumCodeIntegerTypeHandler<FlagCode> {
 
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
-
-	MessageSourceResolvable resolve(String code);
-
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
+	public FlagCodeTypeHandler() {
+		super(FlagCode.class, FlagCode.TRUE);
+	}
 
 }

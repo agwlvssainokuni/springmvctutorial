@@ -27,6 +27,7 @@ import lombok.ToString;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
 import cherry.spring.common.type.format.CustomDateTimeFormat;
 import cherry.spring.common.validator.MaxLength;
@@ -48,6 +49,9 @@ public class TodoEditForm implements Serializable {
 	private String description;
 
 	private boolean doneFlg;
+
+	@CustomDateTimeFormat()
+	private LocalDateTime doneAt;
 
 	private int lockVersion;
 

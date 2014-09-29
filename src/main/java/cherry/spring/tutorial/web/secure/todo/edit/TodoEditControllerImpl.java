@@ -27,11 +27,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
 import cherry.spring.common.helper.bizdate.BizdateHelper;
-import cherry.spring.common.helper.logicalerror.LogicalError;
 import cherry.spring.common.helper.logicalerror.LogicalErrorHelper;
 import cherry.spring.common.helper.onetimetoken.OneTimeTokenValidator;
 import cherry.spring.common.mvc.Contract;
@@ -62,44 +62,17 @@ public class TodoEditControllerImpl implements TodoEditController {
 		Todo todo = todoService.findById(auth.getName(), id);
 		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
-		TodoEditForm form = new TodoEditForm();
-		form.setDueDate(todo.getDueDate());
-		form.setDescription(todo.getDescription());
-		form.setDoneFlg(todo.getDoneFlg().isTrue());
-		form.setLockVersion(todo.getLockVersion());
-
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 		mav.addObject(PathDef.PATH_VAR_ID, id);
-		mav.addObject(todo);
-		mav.addObject(form);
-		return mav;
-	}
-
-	@Override
-	public ModelAndView confirm(int id, TodoEditForm form,
-			BindingResult binding, Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request) {
-
-		Todo todo = todoService.findById(auth.getName(), id);
-		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
-
-		if (binding.hasErrors()) {
-			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
-			mav.addObject(PathDef.PATH_VAR_ID, id);
-			mav.addObject(todo);
-			return mav;
-		}
-
-		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT_CONFIRM);
-		mav.addObject(PathDef.PATH_VAR_ID, id);
-		mav.addObject(todo);
+		mav.addObject(createForm(todo));
 		return mav;
 	}
 
 	@Override
 	public ModelAndView execute(int id, TodoEditForm form,
 			BindingResult binding, Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request) {
+			SitePreference sitePref, HttpServletRequest request,
+			RedirectAttributes redirAttr) {
 
 		Todo todo = todoService.findById(auth.getName(), id);
 		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
@@ -107,15 +80,13 @@ public class TodoEditControllerImpl implements TodoEditController {
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
-			mav.addObject(todo);
 			return mav;
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.reject(binding, LogicalError.OneTimeTokenError);
+			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
-			mav.addObject(todo);
 			return mav;
 		}
 
@@ -130,16 +101,16 @@ public class TodoEditControllerImpl implements TodoEditController {
 
 		boolean result = todoService.update(auth.getName(), id, newTodo);
 		if (!result) {
-			logicalErrorHelper
-					.reject(binding, LogicalError.OptimisticLockError);
+			logicalErrorHelper.rejectOnOptimisticLockError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
-			mav.addObject(todo);
 			return mav;
 		}
 
+		redirAttr.addFlashAttribute("updated", true);
+
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoEditController.class, PathDef.METHOD_FINISH, id, auth,
+				TodoEditController.class, PathDef.METHOD_INIT, id, auth,
 				locale, sitePref, request).build();
 
 		ModelAndView mav = new ModelAndView();
@@ -147,17 +118,16 @@ public class TodoEditControllerImpl implements TodoEditController {
 		return mav;
 	}
 
-	@Override
-	public ModelAndView finish(int id, Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request) {
-
-		Todo todo = todoService.findById(auth.getName(), id);
-		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
-
-		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT_FINISH);
-		mav.addObject(PathDef.PATH_VAR_ID, id);
-		mav.addObject(todo);
-		return mav;
+	private TodoEditForm createForm(Todo todo) {
+		TodoEditForm form = new TodoEditForm();
+		form.setDueDate(todo.getDueDate());
+		form.setDescription(todo.getDescription());
+		form.setDoneFlg(todo.getDoneFlg() == FlagCode.TRUE);
+		if (todo.getDoneFlg() == FlagCode.TRUE) {
+			form.setDoneAt(todo.getDoneAt());
+		}
+		form.setLockVersion(todo.getLockVersion());
+		return form;
 	}
 
 }

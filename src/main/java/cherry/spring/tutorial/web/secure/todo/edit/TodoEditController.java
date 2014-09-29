@@ -27,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import cherry.spring.tutorial.web.PathDef;
 
@@ -38,21 +39,10 @@ public interface TodoEditController {
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request);
 
-	@RequestMapping(PathDef.SUBURI_CONFIRM)
-	ModelAndView confirm(@PathVariable(PathDef.PATH_VAR_ID) int id,
-			@Validated TodoEditForm form, BindingResult binding,
-			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request);
-
 	@RequestMapping(PathDef.SUBURI_EXECUTE)
 	ModelAndView execute(@PathVariable(PathDef.PATH_VAR_ID) int id,
 			@Validated TodoEditForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request);
-
-	@RequestMapping(PathDef.SUBURI_FINISH)
-	ModelAndView finish(@PathVariable(PathDef.PATH_VAR_ID) int id,
-			Authentication auth, Locale locale, SitePreference sitePref,
-			HttpServletRequest request);
+			HttpServletRequest request, RedirectAttributes redirAttr);
 
 }

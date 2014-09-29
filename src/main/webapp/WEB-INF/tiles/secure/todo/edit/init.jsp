@@ -8,7 +8,13 @@
 <%@ taglib prefix="security"
 	uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles"%>
+<%@ taglib prefix="mytag" tagdir="/WEB-INF/tags"%>
 <h2>TODO編集</h2>
+<c:if test="${updated}">
+	<div class="has-success">
+		<div class="help-block">TODOを更新しました。</div>
+	</div>
+</c:if>
 <s:hasBindErrors name="todoEditForm">
 	<div class="form-group has-error">
 		<div class="help-block bg-danger">
@@ -22,7 +28,7 @@
 		</div>
 	</div>
 </s:hasBindErrors>
-<f:form servletRelativeAction="/secure/todo/${id}/confirm" method="POST"
+<f:form servletRelativeAction="/secure/todo/${id}/execute" method="POST"
 	modelAttribute="todoEditForm" role="form">
 	<div class="form-group">
 		<f:label path="dueDate" cssErrorClass="has-error">期日</f:label>
@@ -33,10 +39,15 @@
 		<f:checkbox path="doneFlg" cssErrorClass="has-error" label="完了" />
 	</div>
 	<div class="form-group">
+		<f:label path="doneAt">完了日時</f:label>
+		<f:input path="doneAt" cssClass="form-control" readonly="true" />
+	</div>
+	<div class="form-group">
 		<f:label path="description" cssErrorClass="has-error">内容</f:label>
 		<f:textarea path="description" cssClass="form-control"
 			cssErrorClass="form-control has-error" />
 	</div>
 	<f:hidden path="lockVersion" />
-	<f:button type="submit" class="btn btn-default">確認</f:button>
+	<f:button type="submit" class="btn btn-default">更新</f:button>
+	<mytag:onetimetoken />
 </f:form>

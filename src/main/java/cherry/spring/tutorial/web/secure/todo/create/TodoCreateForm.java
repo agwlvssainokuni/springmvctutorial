@@ -28,7 +28,7 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDate;
 
-import cherry.spring.common.custom.format.CustomDateTimeFormat;
+import cherry.spring.common.type.format.CustomDateTimeFormat;
 import cherry.spring.common.validator.MaxLength;
 
 @Setter

@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.type.jdbc;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+import java.util.Map;
 
-public interface LogicalErrorHelper {
+import org.springframework.jdbc.core.RowMapper;
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
+import cherry.spring.common.lib.mask.Masker;
 
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
+public interface RowMapperCreator {
 
-	MessageSourceResolvable resolve(String code);
+	<T> RowMapper<T> create(Class<T> mappedClass);
 
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
+	<T> RowMapper<T> create(Class<T> mappedClass,
+			Map<String, Masker<?>> maskerMap);
 
 }

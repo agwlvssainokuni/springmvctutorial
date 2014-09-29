@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.mvc;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+import com.google.common.base.Joiner;
 
-public interface LogicalErrorHelper {
+public class Contract {
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
-
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
-
-	MessageSourceResolvable resolve(String code);
-
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
+	public static <T> void shouldExist(T reference, Class<T> type,
+			Object... args) throws NotFoundException {
+		if (reference == null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(type.getSimpleName()).append(" not found");
+			if (args.length > 0) {
+				sb.append(": ");
+				Joiner.on(", ").appendTo(sb, args);
+			}
+			throw new NotFoundException(sb.toString());
+		}
+	}
 
 }

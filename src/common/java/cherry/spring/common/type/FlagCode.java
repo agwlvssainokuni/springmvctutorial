@@ -14,23 +14,37 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.type;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+import cherry.spring.common.type.CodeUtil.CodeMap;
 
-public interface LogicalErrorHelper {
+public enum FlagCode implements Code<Integer> {
+	FALSE(0), TRUE(1);
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
+	private int code;
 
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
+	private FlagCode(int code) {
+		this.code = code;
+	}
 
-	MessageSourceResolvable resolve(String code);
+	@Override
+	public Integer code() {
+		return this.code;
+	}
 
-	void rejectOnOptimisticLockError(BindingResult binding);
+	public boolean isTrue() {
+		return this == TRUE;
+	}
 
-	void rejectOnOneTimeTokenError(BindingResult binding);
+	private static CodeMap<Integer, FlagCode> codeMap = CodeUtil.getCodeMap(
+			FlagCode.class, TRUE);
+
+	public static FlagCode valueOf(int i) {
+		return codeMap.get(i);
+	}
+
+	public static FlagCode valueOf(boolean b) {
+		return b ? TRUE : FALSE;
+	}
 
 }

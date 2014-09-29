@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.type;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+public interface SecureType<T> {
 
-public interface LogicalErrorHelper {
+	T plain();
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
+	String crypto();
 
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
+	public interface Encoder<T> {
 
-	MessageSourceResolvable resolve(String code);
+		String encode(T p);
 
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
+		T decode(String c);
+	}
 
 }

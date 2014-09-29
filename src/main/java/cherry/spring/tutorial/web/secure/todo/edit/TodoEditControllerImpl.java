@@ -30,11 +30,12 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
-import cherry.spring.common.custom.FlagCode;
 import cherry.spring.common.helper.bizdate.BizdateHelper;
 import cherry.spring.common.helper.logicalerror.LogicalError;
 import cherry.spring.common.helper.logicalerror.LogicalErrorHelper;
 import cherry.spring.common.helper.onetimetoken.OneTimeTokenValidator;
+import cherry.spring.common.mvc.Contract;
+import cherry.spring.common.type.FlagCode;
 import cherry.spring.tutorial.db.gen.dto.Todo;
 import cherry.spring.tutorial.web.PathDef;
 import cherry.spring.tutorial.web.secure.todo.TodoService;
@@ -59,6 +60,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 			SitePreference sitePref, HttpServletRequest request) {
 
 		Todo todo = todoService.findById(auth.getName(), id);
+		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
 		TodoEditForm form = new TodoEditForm();
 		form.setDueDate(todo.getDueDate());
@@ -79,6 +81,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 			SitePreference sitePref, HttpServletRequest request) {
 
 		Todo todo = todoService.findById(auth.getName(), id);
+		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
@@ -99,6 +102,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 			SitePreference sitePref, HttpServletRequest request) {
 
 		Todo todo = todoService.findById(auth.getName(), id);
+		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
@@ -148,6 +152,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 			SitePreference sitePref, HttpServletRequest request) {
 
 		Todo todo = todoService.findById(auth.getName(), id);
+		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT_FINISH);
 		mav.addObject(PathDef.PATH_VAR_ID, id);

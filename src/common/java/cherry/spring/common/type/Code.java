@@ -14,23 +14,10 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.type;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+public interface Code<T> {
 
-public interface LogicalErrorHelper {
-
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
-
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
-
-	MessageSourceResolvable resolve(String code);
-
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
+	T code();
 
 }

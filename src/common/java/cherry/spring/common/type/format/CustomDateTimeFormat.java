@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.type.format;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface LogicalErrorHelper {
+@Target({ ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER,
+		ElementType.ANNOTATION_TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CustomDateTimeFormat {
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
+	Range value() default Range.NONE;
 
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
+	boolean optional() default true;
 
-	MessageSourceResolvable resolve(String code);
-
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
-
+	public enum Range {
+		FROM, TO, NONE
+	}
 }

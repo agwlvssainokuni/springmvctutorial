@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.mvc;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+public class NotFoundException extends RuntimeException {
 
-public interface LogicalErrorHelper {
+	private static final long serialVersionUID = 1L;
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
+	public NotFoundException() {
+		super();
+	}
 
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
+	public NotFoundException(String message) {
+		super(message);
+	}
 
-	MessageSourceResolvable resolve(String code);
+	public NotFoundException(Throwable cause) {
+		super(cause);
+	}
 
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
+	public NotFoundException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
 }

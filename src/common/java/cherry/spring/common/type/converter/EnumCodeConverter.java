@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.logicalerror;
+package cherry.spring.common.type.converter;
 
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.validation.BindingResult;
+import org.springframework.core.convert.converter.Converter;
 
-public interface LogicalErrorHelper {
+import cherry.spring.common.type.Code;
+import cherry.spring.common.type.CodeUtil;
+import cherry.spring.common.type.CodeUtil.CodeMap;
 
-	void reject(BindingResult binding, ILogicalError logicalError,
-			Object... args);
+public abstract class EnumCodeConverter<C, E extends Code<C>> implements
+		Converter<C, E> {
 
-	void rejectValue(BindingResult binding, String name,
-			ILogicalError logicError, Object... args);
+	private CodeMap<C, E> codeMap;
 
-	MessageSourceResolvable resolve(String code);
+	protected EnumCodeConverter(Class<E> type, E defaultValue) {
+		this.codeMap = CodeUtil.getCodeMap(type, defaultValue);
+	}
 
-	void rejectOnOptimisticLockError(BindingResult binding);
-
-	void rejectOnOneTimeTokenError(BindingResult binding);
-
+	@Override
+	public E convert(C source) {
+		return codeMap.get(source);
+	}
 }

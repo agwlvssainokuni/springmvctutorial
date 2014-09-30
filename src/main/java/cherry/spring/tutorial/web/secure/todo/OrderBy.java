@@ -16,21 +16,6 @@
 
 package cherry.spring.tutorial.web.secure.todo;
 
-import java.io.Writer;
-
-import cherry.spring.tutorial.db.gen.dto.Todo;
-
-public interface TodoService {
-
-	Integer create(Todo todo);
-
-	boolean update(String loginId, int id, Todo todo);
-
-	Todo findById(String loginId, int id);
-
-	SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz);
-
-	int export(Writer writer, String loginId, SearchCondition cond);
-
+public enum OrderBy {
+	NONE, ID, POSTED_AT, DUE_DATE
 }

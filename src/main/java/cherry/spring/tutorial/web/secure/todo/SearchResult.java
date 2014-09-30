@@ -16,21 +16,26 @@
 
 package cherry.spring.tutorial.web.secure.todo;
 
-import java.io.Writer;
+import java.io.Serializable;
+import java.util.List;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import cherry.spring.common.lib.paginate.PageSet;
 import cherry.spring.tutorial.db.gen.dto.Todo;
 
-public interface TodoService {
+@Setter
+@Getter
+@EqualsAndHashCode
+@ToString
+public class SearchResult implements Serializable {
 
-	Integer create(Todo todo);
+	private static final long serialVersionUID = 1L;
 
-	boolean update(String loginId, int id, Todo todo);
+	private PageSet pageSet;
 
-	Todo findById(String loginId, int id);
-
-	SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz);
-
-	int export(Writer writer, String loginId, SearchCondition cond);
+	private List<Todo> resultList;
 
 }

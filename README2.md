@@ -370,7 +370,6 @@ todoEditForm.doneFlg=完了フラグ
 todoEditForm.lockVersion=ロックバージョン
 ```
 
-
 # STEP 12: TODO編集画面を作成する。(3)
 
 STEP 12では「TODO編集画面の主たる業務ロジックである「DBのTODOレコードを更新する」を実装」します。

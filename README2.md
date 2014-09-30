@@ -72,6 +72,30 @@ STEP 11では「基本的な画面遷移を実装」します。
 ## フォーム
 
 ```Java:TodoEditForm
+@Setter
+@Getter
+@EqualsAndHashCode
+@ToString
+public class TodoEditForm implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	@NotNull
+	@CustomDateTimeFormat()
+	private LocalDate dueDate;
+
+	@NotEmpty
+	@MaxLength(5000)
+	private String description;
+
+	private boolean doneFlg;
+
+	@CustomDateTimeFormat()
+	private LocalDateTime doneAt;
+
+	private int lockVersion;
+
+}
 ```
 
 ## コントローラ

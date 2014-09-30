@@ -22,6 +22,8 @@ public interface TodoService {
 
 	Integer create(Todo todo);
 
+	boolean update(String loginId, int id, Todo todo);
+
 	Todo findById(String loginId, int id);
 
 }

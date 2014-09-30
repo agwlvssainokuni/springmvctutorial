@@ -90,6 +90,23 @@ public class TodoEditControllerImpl implements TodoEditController {
 			return mav;
 		}
 
+		Todo newTodo = new Todo();
+		newTodo.setDueDate(form.getDueDate());
+		newTodo.setDescription(form.getDescription());
+		newTodo.setDoneFlg(FlagCode.valueOf(form.isDoneFlg()));
+		if (form.isDoneFlg() && !todo.getDoneFlg().isTrue()) {
+			newTodo.setDoneAt(bizdateHelper.now());
+		}
+		newTodo.setLockVersion(form.getLockVersion());
+
+		boolean result = todoService.update(auth.getName(), id, newTodo);
+		if (!result) {
+			logicalErrorHelper.rejectOnOptimisticLockError(binding);
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
+			mav.addObject(PathDef.PATH_VAR_ID, id);
+			return mav;
+		}
+
 		redirAttr.addFlashAttribute("updated", true);
 
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(

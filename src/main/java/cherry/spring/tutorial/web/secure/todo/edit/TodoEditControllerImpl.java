@@ -77,6 +77,21 @@ public class TodoEditControllerImpl implements TodoEditController {
 		Todo todo = todoService.findById(auth.getName(), id);
 		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
+			mav.addObject(PathDef.PATH_VAR_ID, id);
+			return mav;
+		}
+
+		if (!oneTimeTokenValidator.isValid(request)) {
+			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
+			mav.addObject(PathDef.PATH_VAR_ID, id);
+			return mav;
+		}
+
+		redirAttr.addFlashAttribute("updated", true);
+
 		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
 				TodoEditController.class, PathDef.METHOD_INIT, id, auth,
 				locale, sitePref, request).build();

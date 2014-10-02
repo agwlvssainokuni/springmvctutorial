@@ -9,6 +9,7 @@
 	uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles"%>
 <%@ taglib prefix="common" uri="urn:springapp:common"%>
+<%@ taglib prefix="mytag" tagdir="/WEB-INF/tags"%>
 <h2>TODO検索</h2>
 <s:hasBindErrors name="todoListForm">
 	<div class="form-group has-error">
@@ -68,7 +69,7 @@
 			itemLabel="enumLabel" items="${orderDirList}"
 			cssErrorClass="has-error" />
 	</div>
-	<f:hidden path="pageNo" />
+	<input type="hidden" name="pageNo" value="0" />
 	<f:hidden path="pageSz" />
 	<f:button type="submit" class="btn btn-default">検索</f:button>
 	<f:button type="submit" class="btn btn-default" name="download">ダウンロード</f:button>
@@ -76,7 +77,8 @@
 <c:if
 	test="${searchResult != null && !searchResult.resultList.isEmpty()}">
 	<f:form servletRelativeAction="/secure/todo/list/execute" method="POST"
-		modelAttribute="todoListForm" id="todoListFormHidden">
+		modelAttribute="todoListForm" id="todoListFormHidden"
+		class="app-pager-form">
 		<f:hidden path="postedFrom" id="postedFromHidden" />
 		<f:hidden path="postedTo" id="postedToHidden" />
 		<f:hidden path="dueDateFrom" id="dueDateFromHidden" />
@@ -88,6 +90,7 @@
 		<f:hidden path="pageNo" id="pageNoHidden" />
 		<f:hidden path="pageSz" id="pageSzHidden" />
 	</f:form>
+	<mytag:pagerLink pageSet="${searchResult.pageSet}" />
 	<table class="table table-striped">
 		<thead>
 			<tr>
@@ -116,4 +119,5 @@
 			</c:forEach>
 		</tbody>
 	</table>
+	<mytag:pagerLink pageSet="${searchResult.pageSet}" />
 </c:if>

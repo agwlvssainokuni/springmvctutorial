@@ -1,7 +1,7 @@
 $(function() {
 
 	$(".app-pager-link").each(function(index) {
-		var current = $("input[name='current']", this).val();
+		var current = $(".app-page-current", this).attr("title");
 		$("li", this).each(function() {
 			if (this.title == current) {
 				if ($(this).hasClass("edge")) {
@@ -16,7 +16,7 @@ $(function() {
 				var pageNo = this.title - 1;
 				$("a", this).click(function() {
 					var form = $(".app-pager-form");
-					$("input[name = 'pageNo']", form).val(pageNo);
+					$("input.app-page-no", form).val(pageNo);
 					form.submit();
 					return false;
 				});

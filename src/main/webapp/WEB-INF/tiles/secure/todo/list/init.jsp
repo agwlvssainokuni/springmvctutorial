@@ -27,38 +27,33 @@
 		</div>
 	</div>
 </s:hasBindErrors>
+<c:if
+	test="${searchResult != null && searchResult.resultList.isEmpty()}">
+	<div class="has-warning">
+		<div class="help-block">条件に該当する項目はありませn。</div>
+	</div>
+</c:if>
 <f:form servletRelativeAction="/secure/todo/list/execute" method="POST"
 	modelAttribute="todoListForm" role="form">
 	<div class="form-group">
-		<f:label path="postedFrom" cssErrorClass="has-error">登録日時(FROM)</f:label>
-		<f:input path="postedFrom" cssClass="form-control"
-			cssErrorClass="form-control has-error" />
+		<f:label path="postedFrom" cssErrorClass="has-error">登録日時</f:label>
+		<f:input path="postedFrom" cssErrorClass="has-error" />
+		-
+		<f:input path="postedTo" cssErrorClass="has-error" />
 	</div>
 	<div class="form-group">
-		<f:label path="postedTo" cssErrorClass="has-error">登録日時(TO)</f:label>
-		<f:input path="postedTo" cssClass="form-control"
-			cssErrorClass="form-control has-error" />
+		<f:label path="dueDateFrom" cssErrorClass="has-error">期日</f:label>
+		<f:input path="dueDateFrom" cssErrorClass="has-error" />
+		-
+		<f:input path="dueDateTo" cssErrorClass="has-error" />
 	</div>
 	<div class="form-group">
-		<f:label path="dueDateFrom" cssErrorClass="has-error">期日(FROM)</f:label>
-		<f:input path="dueDateFrom" cssClass="form-control"
-			cssErrorClass="form-control has-error" />
-	</div>
-	<div class="form-group">
-		<f:label path="dueDateTo" cssErrorClass="has-error">期日(TO)</f:label>
-		<f:input path="dueDateTo" cssClass="form-control"
-			cssErrorClass="form-control has-error" />
-	</div>
-	<div class="form-group">
-		<f:checkbox path="notDone" label="未完了" cssClass="form-control"
-			cssErrorClass="form-control has-error" />
-		<f:checkbox path="done" label="完了" cssClass="form-control"
-			cssErrorClass="form-control has-error" />
+		<f:checkbox path="notDone" label="未完了" cssErrorClass="has-error" />
+		<f:checkbox path="done" label="完了" cssErrorClass="has-error" />
 	</div>
 	<div class="form-group">
 		<f:label path="orderBy" cssErrorClass="has-error">ソート列</f:label>
-		<f:select path="orderBy" cssClass="form-control"
-			cssErrorClass="form-control has-error">
+		<f:select path="orderBy" cssErrorClass="has-error">
 			<c:set var="orderByList"
 				value="${common:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderBy')}" />
 			<f:options itemValue="enumName" itemLabel="enumLabel"
@@ -76,17 +71,49 @@
 	<f:hidden path="pageNo" />
 	<f:hidden path="pageSz" />
 	<f:button type="submit" class="btn btn-default">検索</f:button>
+	<f:button type="submit" class="btn btn-default" name="download">ダウンロード</f:button>
 </f:form>
-<f:form servletRelativeAction="/secure/todo/list/execute" method="POST"
-	modelAttribute="todoListForm" id="todoListFormHidden">
-	<f:hidden path="postedFrom" id="postedFromHidden" />
-	<f:hidden path="postedTo" id="postedToHidden" />
-	<f:hidden path="dueDateFrom" id="dueDateFromHidden" />
-	<f:hidden path="dueDateTo" id="dueDateToHidden" />
-	<f:hidden path="notDone" id="notDoneHidden" />
-	<f:hidden path="done" id="doneHidden" />
-	<f:hidden path="orderBy" id="orderByHidden" />
-	<f:hidden path="orderDir" id="orderDirHidden" />
-	<f:hidden path="pageNo" id="pageNoHidden" />
-	<f:hidden path="pageSz" id="pageSzHidden" />
-</f:form>
+<c:if
+	test="${searchResult != null && !searchResult.resultList.isEmpty()}">
+	<f:form servletRelativeAction="/secure/todo/list/execute" method="POST"
+		modelAttribute="todoListForm" id="todoListFormHidden">
+		<f:hidden path="postedFrom" id="postedFromHidden" />
+		<f:hidden path="postedTo" id="postedToHidden" />
+		<f:hidden path="dueDateFrom" id="dueDateFromHidden" />
+		<f:hidden path="dueDateTo" id="dueDateToHidden" />
+		<f:hidden path="notDone" id="notDoneHidden" />
+		<f:hidden path="done" id="doneHidden" />
+		<f:hidden path="orderBy" id="orderByHidden" />
+		<f:hidden path="orderDir" id="orderDirHidden" />
+		<f:hidden path="pageNo" id="pageNoHidden" />
+		<f:hidden path="pageSz" id="pageSzHidden" />
+	</f:form>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>ID</th>
+				<th>投稿日時</th>
+				<th>期日</th>
+				<th>状態</th>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach var="count" begin="1"
+				end="${searchResult.resultList.size()}">
+				<s:nestedPath path="searchResult.resultList[${count - 1}]">
+					<s:bind path="id">
+						<c:url var="url" value="/secure/todo/${status.value}" />
+					</s:bind>
+					<tr>
+						<td>${searchResult.pageSet.current.from + count}</td>
+						<td><a href="${url}"><s:bind path="id">${status.value}</s:bind></a></td>
+						<td><a href="${url}"><s:bind path="postedAt">${status.value}</s:bind></a></td>
+						<td><s:bind path="dueDate">${status.value}</s:bind></td>
+						<td><s:bind path="doneFlg">${status.actualValue.isTrue() ? "完了" : "未完了" }</s:bind></td>
+					</tr>
+				</s:nestedPath>
+			</c:forEach>
+		</tbody>
+	</table>
+</c:if>

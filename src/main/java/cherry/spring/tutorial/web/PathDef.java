@@ -61,7 +61,7 @@ public class PathDef {
 	public static final String URI_TODO_LIST = "/secure/todo/list";
 
 	/** ビュー: TODO検索画面 */
-	public static final String VIEW_TODO_LIST = "/secure/todo/list/init";
+	public static final String VIEW_TODO_LIST = "secure/todo/list/init";
 
 	/** URIサブパス: 確認 */
 	public static final String SUBURI_CONFIRM = "confirm";

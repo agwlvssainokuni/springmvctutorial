@@ -87,8 +87,8 @@
 		<f:hidden path="done" id="doneHidden" />
 		<f:hidden path="orderBy" id="orderByHidden" />
 		<f:hidden path="orderDir" id="orderDirHidden" />
-		<f:hidden path="pageNo" id="pageNoHidden" />
-		<f:hidden path="pageSz" id="pageSzHidden" />
+		<f:hidden path="pageNo" id="pageNoHidden" cssClass="app-page-no" />
+		<f:hidden path="pageSz" id="pageSzHidden" cssClass="app-page-sz" />
 	</f:form>
 	<mytag:pagerLink pageSet="${searchResult.pageSet}" />
 	<table class="table table-striped">

@@ -5,7 +5,7 @@
 <%@ attribute name="pageSet" required="true" rtexprvalue="true"
 	type="cherry.spring.common.lib.paginate.PageSet"%>
 <div class="app-pager-link">
-	<input type="hidden" name="current" value="${pageSet.current.no + 1}" />
+	<span class="app-page-current" title="${pageSet.current.no + 1}"></span>
 	<ul class="pagination">
 		<li title="${pageSet.prev.no+1}" class="edge"><a href="#">&laquo;</a></li>
 		<c:choose>

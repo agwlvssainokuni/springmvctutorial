@@ -17,5 +17,5 @@
 package cherry.spring.tutorial.web.secure.todo;
 
 public enum OrderDir {
-	NONE, ASC, DESC
+	ASC, DESC
 }

@@ -37,8 +37,6 @@ public class SearchCondition implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<Integer> id;
-
 	private LocalDateTime postedFrom;
 
 	private LocalDateTime postedTo;

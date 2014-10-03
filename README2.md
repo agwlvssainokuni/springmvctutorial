@@ -149,6 +149,10 @@ URIパス、パス変数名は定数定義を指定するため、プログラ�
 @RequestMapping(PathDef.URI_TODO_EDIT)
 public interface TodoEditController {
 
+	@ModelAttribute()
+	TodoEditForm getForm(@PathVariable(PathDef.PATH_VAR_ID) int id,
+			Authentication auth);
+
 	@RequestMapping()
 	ModelAndView init(@PathVariable(PathDef.PATH_VAR_ID) int id,
 			Authentication auth, Locale locale, SitePreference sitePref,
@@ -164,15 +168,15 @@ public interface TodoEditController {
 ```
 
 ### 実装クラス
-STEP 10で、編集画面を表示するためのプログラム(`init`メソッド)を完成します。
+STEP 10で、編集画面を表示するためのプログラム(`getForm()`メソッドと`init()`メソッド)を完成します。
 
-TODO登録画面では、初期表示するフォーム(`TodoCreateForm`)を返却するメソッド`getForm()`を別に設け、`init`メソッドではビューの名前を返却するだけでした。
-TODO編集画面では、初期表示するフォーム(`TodoEditForm`)の値は「パス変数で指定された主キーを持つTODOレコード」です。パス変数の値に依存してフォームを作成する必要がありますので、フォームの作成も`init`メソッド中で行います。TODOレコードの照会は、TODO登録画面の「完了画面」を表示するために作成したものを使います。取得したレコードの値を`TodoEditForm`に詰め直して(`createForm()`メソッド)、これを`ModelAndView`に格納(`addObject()`メソッド)します。
+TODO登録画面では、初期表示するフォーム(`TodoCreateForm`)を返却するメソッド`getForm()`を別に設け、`init()`メソッドではビューの名前を返却するだけでした。
+TODO編集画面では、初期表示するフォーム(`TodoEditForm`)の値は「パス変数で指定された主キーを持つTODOレコード」です。パス変数の値に依存してフォームを作成する必要がありますので、`getForm()`メソッドもパス変数を受取るように構成します。TODOレコードの照会は、TODO登録画面の「完了画面」を表示するために作成したものを使います。取得したレコードの値を`TodoEditForm`に詰め直し、これを`getForm()`メソッドの返却値とします。
 
-また、メソッド引数として受取ったパス変数の値も`ModelAndView`に格納してJSPに受渡します。URIパスから抽出されたパス変数の値は、そのままではJSPには渡されないため、コントローラのメソッドの中で明示的に受渡します。
-
-あと、TODOレコードを照会した結果は`Contract.shouldExist()`メソッドで存在保証します。
+また、TODOレコードを照会した結果は`Contract.shouldExist()`メソッドで存在保証します。
 Todoオブジェクトが存在しない(== null)場合は`NotFoundException`がthrowされ、後続の処理がスキップされます。また`NotFoundException`は別途定義済みの`@ExceptionHandler`が拾い、HTTPステータス404 (Not Found)として返却されます。
+
+なお、`init()`メソッドでは、引数として受取ったパス変数の値を`ModelAndView`に格納してJSPに受渡します。URIパスから抽出されたパス変数の値は、そのままではJSPには渡されないため、コントローラのメソッドの中で明示的に受渡します。
 
 下記のようにコントローラの実装クラスを作成します。
 
@@ -193,15 +197,27 @@ public class TodoEditControllerImpl implements TodoEditController {
 	private OneTimeTokenValidator oneTimeTokenValidator;
 
 	@Override
-	public ModelAndView init(int id, Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request) {
+	public TodoEditForm getForm(int id, Authentication auth) {
 
 		Todo todo = todoService.findById(auth.getName(), id);
 		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
+		TodoEditForm form = new TodoEditForm();
+		form.setDueDate(todo.getDueDate());
+		form.setDescription(todo.getDescription());
+		form.setDoneFlg(todo.getDoneFlg() == FlagCode.TRUE);
+		if (todo.getDoneFlg() == FlagCode.TRUE) {
+			form.setDoneAt(todo.getDoneAt());
+		}
+		form.setLockVersion(todo.getLockVersion());
+		return form;
+	}
+
+	@Override
+	public ModelAndView init(int id, Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 		mav.addObject(PathDef.PATH_VAR_ID, id);
-		mav.addObject(createForm(todo));
 		return mav;
 	}
 
@@ -221,18 +237,6 @@ public class TodoEditControllerImpl implements TodoEditController {
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
 		return mav;
-	}
-
-	private TodoEditForm createForm(Todo todo) {
-		TodoEditForm form = new TodoEditForm();
-		form.setDueDate(todo.getDueDate());
-		form.setDescription(todo.getDescription());
-		form.setDoneFlg(todo.getDoneFlg() == FlagCode.TRUE);
-		if (todo.getDoneFlg() == FlagCode.TRUE) {
-			form.setDoneAt(todo.getDoneAt());
-		}
-		form.setLockVersion(todo.getLockVersion());
-		return form;
 	}
 
 }

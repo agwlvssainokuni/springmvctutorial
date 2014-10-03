@@ -25,7 +25,6 @@ import org.springframework.mobile.device.site.SitePreference;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -57,8 +56,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 	private OneTimeTokenValidator oneTimeTokenValidator;
 
 	@Override
-	public TodoEditForm getForm(@PathVariable(PathDef.PATH_VAR_ID) int id,
-			Authentication auth) {
+	public TodoEditForm getForm(int id, Authentication auth) {
 
 		Todo todo = todoService.findById(auth.getName(), id);
 		Contract.shouldExist(todo, Todo.class, auth.getName(), id);

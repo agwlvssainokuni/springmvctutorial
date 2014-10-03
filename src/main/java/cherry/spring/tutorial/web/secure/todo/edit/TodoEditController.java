@@ -24,6 +24,7 @@ import org.springframework.mobile.device.site.SitePreference;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -33,6 +34,10 @@ import cherry.spring.tutorial.web.PathDef;
 
 @RequestMapping(PathDef.URI_TODO_EDIT)
 public interface TodoEditController {
+
+	@ModelAttribute()
+	TodoEditForm getForm(@PathVariable(PathDef.PATH_VAR_ID) int id,
+			Authentication auth);
 
 	@RequestMapping()
 	ModelAndView init(@PathVariable(PathDef.PATH_VAR_ID) int id,

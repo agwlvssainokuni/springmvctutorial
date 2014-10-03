@@ -56,15 +56,27 @@ public class TodoEditControllerImpl implements TodoEditController {
 	private OneTimeTokenValidator oneTimeTokenValidator;
 
 	@Override
-	public ModelAndView init(int id, Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request) {
+	public TodoEditForm getForm(int id, Authentication auth) {
 
 		Todo todo = todoService.findById(auth.getName(), id);
 		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
+		TodoEditForm form = new TodoEditForm();
+		form.setDueDate(todo.getDueDate());
+		form.setDescription(todo.getDescription());
+		form.setDoneFlg(todo.getDoneFlg() == FlagCode.TRUE);
+		if (todo.getDoneFlg() == FlagCode.TRUE) {
+			form.setDoneAt(todo.getDoneAt());
+		}
+		form.setLockVersion(todo.getLockVersion());
+		return form;
+	}
+
+	@Override
+	public ModelAndView init(int id, Authentication auth, Locale locale,
+			SitePreference sitePref, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 		mav.addObject(PathDef.PATH_VAR_ID, id);
-		mav.addObject(createForm(todo));
 		return mav;
 	}
 
@@ -84,18 +96,6 @@ public class TodoEditControllerImpl implements TodoEditController {
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
 		return mav;
-	}
-
-	private TodoEditForm createForm(Todo todo) {
-		TodoEditForm form = new TodoEditForm();
-		form.setDueDate(todo.getDueDate());
-		form.setDescription(todo.getDescription());
-		form.setDoneFlg(todo.getDoneFlg() == FlagCode.TRUE);
-		if (todo.getDoneFlg() == FlagCode.TRUE) {
-			form.setDoneAt(todo.getDoneAt());
-		}
-		form.setLockVersion(todo.getLockVersion());
-		return form;
 	}
 
 }

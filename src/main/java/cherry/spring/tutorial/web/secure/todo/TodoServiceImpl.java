@@ -16,6 +16,8 @@
 
 package cherry.spring.tutorial.web.secure.todo;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import cherry.spring.common.helper.querydsl.SQLQueryConfigurer;
 import cherry.spring.common.helper.querydsl.SQLQueryHelper;
 import cherry.spring.common.helper.querydsl.SQLQueryResult;
+import cherry.spring.common.lib.etl.CsvConsumer;
+import cherry.spring.common.lib.etl.NoneLimiter;
 import cherry.spring.common.type.DeletedFlag;
 import cherry.spring.common.type.FlagCode;
 import cherry.spring.common.type.jdbc.RowMapperCreator;
@@ -110,6 +114,19 @@ public class TodoServiceImpl implements TodoService {
 		result.setPageSet(r.getPageSet());
 		result.setResultList(r.getResultList());
 		return result;
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public int export(Writer writer, String loginId, SearchCondition cond) {
+		try {
+			QTodo t = new QTodo("t");
+			return sqlQueryHelper.download(configurer(t, loginId, cond),
+					new CsvConsumer(writer, true), new NoneLimiter(),
+					columns(t));
+		} catch (IOException ex) {
+			throw new IllegalStateException(ex);
+		}
 	}
 
 	private Expression<?>[] columns(QTodo t) {

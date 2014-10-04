@@ -16,6 +16,8 @@
 
 package cherry.spring.tutorial.web.secure.todo.list;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +34,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
 import cherry.spring.common.helper.bizdate.BizdateHelper;
+import cherry.spring.common.helper.download.DownloadAction;
 import cherry.spring.common.helper.download.DownloadHelper;
 import cherry.spring.common.helper.querydsl.SQLQueryHelper;
 import cherry.spring.common.lib.util.LocalDateTimeUtil;
@@ -121,6 +124,18 @@ public class TodoListControllerImpl implements TodoListController {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);
 			return mav;
 		}
+
+		final String loginId = auth.getName();
+		final SearchCondition cond = createCondition(form);
+
+		DownloadAction action = new DownloadAction() {
+			@Override
+			public int doDownload(Writer writer) throws IOException {
+				return todoService.export(writer, loginId, cond);
+			}
+		};
+		downloadHelper.download(response, contentType, filename,
+				bizdateHelper.now(), action);
 
 		return null;
 	}

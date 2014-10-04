@@ -16,6 +16,8 @@
 
 package cherry.spring.tutorial.web.secure.todo;
 
+import java.io.Writer;
+
 import cherry.spring.tutorial.db.gen.dto.Todo;
 
 public interface TodoService {
@@ -28,5 +30,7 @@ public interface TodoService {
 
 	SearchResult searh(String loginId, SearchCondition cond, int pageNo,
 			int pageSz);
+
+	int export(Writer writer, String loginId, SearchCondition cond);
 
 }

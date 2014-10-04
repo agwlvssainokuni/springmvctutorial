@@ -16,17 +16,39 @@
 
 package cherry.spring.tutorial.web.secure.todo;
 
-import cherry.spring.tutorial.db.gen.dto.Todo;
+import java.io.Serializable;
+import java.util.List;
 
-public interface TodoService {
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-	Integer create(Todo todo);
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
-	boolean update(String loginId, int id, Todo todo);
+import cherry.spring.common.type.FlagCode;
 
-	Todo findById(String loginId, int id);
+@Setter
+@Getter
+@EqualsAndHashCode
+@ToString
+public class SearchCondition implements Serializable {
 
-	SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz);
+	private static final long serialVersionUID = 1L;
+
+	private LocalDateTime postedFrom;
+
+	private LocalDateTime postedTo;
+
+	private LocalDate dueDateFrom;
+
+	private LocalDate dueDateTo;
+
+	private List<FlagCode> doneFlg;
+
+	private OrderBy orderBy;
+
+	private OrderDir orderDir;
 
 }

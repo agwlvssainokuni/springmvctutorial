@@ -819,7 +819,7 @@ public class TodoListControllerImpl implements TodoListController {
 		form.setDueDateTo(bizdateHelper.today()
 				.plusDays(defaultOffsetOfDueDate));
 		form.setNotDone(true);
-		form.setOrderBy(OrderBy.DUE_DATE);
+		form.setOrderBy(OrderBy.POSTED_AT);
 		form.setOrderDir(OrderDir.DESC);
 		return form;
 	}
@@ -1085,12 +1085,12 @@ STEP 15では「TODO検索画面の主たる業務ロジックである「検索
 			return mav;
 		}
 
+		String loginId = auth.getName();
 		SearchCondition cond = createCondition(form);
 		int pageNo = form.getPageNo();
 		int pageSz = form.getPageSz() <= 0 ? defaultPageSize : form.getPageSz();
 
-		SearchResult result = todoService.searh(auth.getName(), cond, pageNo,
-				pageSz);
+		SearchResult result = todoService.searh(loginId, cond, pageNo, pageSz);
 
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);
 		mav.addObject(result);

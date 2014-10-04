@@ -77,7 +77,7 @@ public class TodoListControllerImpl implements TodoListController {
 		form.setDueDateTo(bizdateHelper.today()
 				.plusDays(defaultOffsetOfDueDate));
 		form.setNotDone(true);
-		form.setOrderBy(OrderBy.DUE_DATE);
+		form.setOrderBy(OrderBy.POSTED_AT);
 		form.setOrderDir(OrderDir.DESC);
 		return form;
 	}

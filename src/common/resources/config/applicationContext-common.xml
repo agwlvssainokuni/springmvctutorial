@@ -18,7 +18,7 @@
 
 	<aop:config>
 		<aop:advisor advice-ref="traceInterceptor"
-			pointcut="execution(* cherry.spring..*.*(..))
+			pointcut="execution(* cherry..*.*(..))
 				and
 				!execution(* cherry.spring.common.log..*.*(..))
 				and
@@ -117,6 +117,11 @@
 
 	<bean id="namedParameterJdbcOperations"
 		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg ref="dataSource" />
+	</bean>
+
+	<bean id="queryDslJdbcOperations"
+		class="org.springframework.data.jdbc.query.QueryDslJdbcTemplate">
 		<constructor-arg ref="dataSource" />
 	</bean>
 

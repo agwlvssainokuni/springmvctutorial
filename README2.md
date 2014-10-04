@@ -850,6 +850,13 @@ public class TodoListControllerImpl implements TodoListController {
 }
 ```
 
+```Init:tutorial.properties
+tutorial.web.secure.todo.list.defaultOffsetOfDueDate=7
+tutorial.web.secure.todo.list.defaultPageSize=10
+tutorial.web.secure.todo.list.contentType=text/csv
+tutorial.web.secure.todo.list.filename=todolist_{0}.csv
+```
+
 ## JSP
 STEP 13では画面は最小限とします。下記のように作成します。
 
@@ -1129,6 +1136,12 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 
 ### 実装クラス
 ```Java:TodoServiceImpl
+	@Autowired
+	private SQLQueryHelper sqlQueryHelper;
+
+	@Autowired
+	private RowMapperCreator rowMapperCreator;
+
 	@Transactional(readOnly = true)
 	@Override
 	public SearchResult searh(String loginId, SearchCondition cond, int pageNo,
@@ -1281,10 +1294,9 @@ STEP 16では「TODO検索画面の主たる業務ロジックである「検索
 
 ```Java:TodoListControllerImpl
 	@Override
-	public ModelAndView download(@Validated TodoListForm form,
-			BindingResult binding, Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request,
-			HttpServletResponse response) {
+	public ModelAndView download(TodoListForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);

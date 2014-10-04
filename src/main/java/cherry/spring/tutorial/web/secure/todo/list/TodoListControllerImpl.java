@@ -87,6 +87,12 @@ public class TodoListControllerImpl implements TodoListController {
 	public ModelAndView execute(TodoListForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);
+			return mav;
+		}
+
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);
 		return mav;
 	}
@@ -95,6 +101,12 @@ public class TodoListControllerImpl implements TodoListController {
 	public ModelAndView download(TodoListForm form, BindingResult binding,
 			Authentication auth, Locale locale, SitePreference sitePref,
 			HttpServletRequest request, HttpServletResponse response) {
+
+		if (binding.hasErrors()) {
+			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);
+			return mav;
+		}
+
 		return null;
 	}
 

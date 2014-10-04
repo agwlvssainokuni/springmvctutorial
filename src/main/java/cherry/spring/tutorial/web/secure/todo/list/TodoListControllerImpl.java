@@ -27,12 +27,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.mobile.device.site.SitePreference;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.servlet.ModelAndView;
 
 import cherry.spring.common.helper.bizdate.BizdateHelper;
@@ -76,9 +74,6 @@ public class TodoListControllerImpl implements TodoListController {
 	@Autowired
 	private DownloadHelper downloadHelper;
 
-	@Autowired
-	private ConversionService conversionService;
-
 	@Override
 	public TodoListForm getForm() {
 		TodoListForm form = new TodoListForm();
@@ -121,10 +116,9 @@ public class TodoListControllerImpl implements TodoListController {
 	}
 
 	@Override
-	public ModelAndView download(@Validated TodoListForm form,
-			BindingResult binding, Authentication auth, Locale locale,
-			SitePreference sitePref, HttpServletRequest request,
-			HttpServletResponse response) {
+	public ModelAndView download(TodoListForm form, BindingResult binding,
+			Authentication auth, Locale locale, SitePreference sitePref,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		if (binding.hasErrors()) {
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);

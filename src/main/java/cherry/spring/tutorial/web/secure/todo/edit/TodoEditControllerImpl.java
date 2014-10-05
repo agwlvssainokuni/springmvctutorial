@@ -106,7 +106,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 		newTodo.setDueDate(form.getDueDate());
 		newTodo.setDescription(form.getDescription());
 		newTodo.setDoneFlg(FlagCode.valueOf(form.isDoneFlg()));
-		if (form.isDoneFlg() && !todo.getDoneFlg().isTrue()) {
+		if (form.isDoneFlg() && !todo.getDoneFlg().booleanValue()) {
 			newTodo.setDoneAt(bizdateHelper.now());
 		}
 		newTodo.setLockVersion(form.getLockVersion());

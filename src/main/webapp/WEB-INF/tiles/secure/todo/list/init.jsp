@@ -113,7 +113,7 @@
 						<td><a href="${url}"><s:bind path="id">${status.value}</s:bind></a></td>
 						<td><a href="${url}"><s:bind path="postedAt">${status.value}</s:bind></a></td>
 						<td><s:bind path="dueDate">${status.value}</s:bind></td>
-						<td><s:bind path="doneFlg">${status.actualValue.isTrue() ? "完了" : "未完了" }</s:bind></td>
+						<td><s:bind path="doneFlg">${status.actualValue.booleanValue() ? "完了" : "未完了" }</s:bind></td>
 					</tr>
 				</s:nestedPath>
 			</c:forEach>

@@ -16,6 +16,9 @@
 
 package cherry.spring.tutorial.web.secure.todo.edit;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromMethodCall;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +29,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
@@ -121,9 +123,9 @@ public class TodoEditControllerImpl implements TodoEditController {
 
 		redirAttr.addFlashAttribute("updated", true);
 
-		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoEditController.class, PathDef.METHOD_INIT, id, auth,
-				locale, sitePref, request).build();
+		UriComponents uc = fromMethodCall(
+				on(TodoEditController.class).init(id, auth, locale, sitePref,
+						request)).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));

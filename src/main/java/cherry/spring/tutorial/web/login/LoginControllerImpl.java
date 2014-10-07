@@ -16,6 +16,9 @@
 
 package cherry.spring.tutorial.web.login;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromMethodCall;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.mobile.device.site.SitePreference;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
@@ -46,9 +48,9 @@ public class LoginControllerImpl implements LoginController {
 
 		redirAttr.addFlashAttribute("loginFailed", true);
 
-		UriComponents redirTo = MvcUriComponentsBuilder.fromMethodName(
-				LoginController.class, PathDef.METHOD_INIT, locale, sitePref,
-				request).build();
+		UriComponents redirTo = fromMethodCall(
+				on(LoginController.class).init(locale, sitePref, request))
+				.build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(redirTo.toUriString(), true));
@@ -61,9 +63,9 @@ public class LoginControllerImpl implements LoginController {
 
 		redirAttr.addFlashAttribute("loggedOut", true);
 
-		UriComponents redirTo = MvcUriComponentsBuilder.fromMethodName(
-				LoginController.class, PathDef.METHOD_INIT, locale, sitePref,
-				request).build();
+		UriComponents redirTo = fromMethodCall(
+				on(LoginController.class).init(locale, sitePref, request))
+				.build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(redirTo.toUriString(), true));

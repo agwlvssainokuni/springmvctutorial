@@ -235,9 +235,9 @@ public class TodoEditControllerImpl implements TodoEditController {
 		Todo todo = todoService.findById(auth.getName(), id);
 		Contract.shouldExist(todo, Todo.class, auth.getName(), id);
 
-		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoEditController.class, PathDef.METHOD_INIT, id, auth,
-				locale, sitePref, request).build();
+		UriComponents uc = fromMethodCall(
+				on(TodoEditController.class).init(id, auth, locale, sitePref,
+						request)).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
@@ -298,9 +298,9 @@ STEP 11では「画面の入力および妥当性検証NGの画面遷移を作�
 
 		redirAttr.addFlashAttribute("updated", true);
 
-		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoEditController.class, PathDef.METHOD_INIT, id, auth,
-				locale, sitePref, request).build();
+		UriComponents uc = fromMethodCall(
+				on(TodoEditController.class).init(id, auth, locale, sitePref,
+						request)).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
@@ -439,9 +439,9 @@ STEP 12では「TODO編集画面の主たる業務ロジックである「DBのT
 
 		redirAttr.addFlashAttribute("updated", true);
 
-		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoEditController.class, PathDef.METHOD_INIT, id, auth,
-				locale, sitePref, request).build();
+		UriComponents uc = fromMethodCall(
+				on(TodoEditController.class).init(id, auth, locale, sitePref,
+						request)).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));

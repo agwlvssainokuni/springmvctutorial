@@ -217,8 +217,8 @@ Spring MVC でも、ビューにJSPを使用する場合は、いわゆるJSPの
 #### リダイレクトする
 リダイレクトする場合も、コントローラのメソッドの返却値は`ModelAndView`です。このインスタンスに`setView(new RedirectView(リダイレクト先URI, true)`の形でリダイレクト先をセットして返却することでリダイレクトされます。また、`RedirectView`コンストラクタの第二引数はリダイレクト先をコンテキストパスからの相対パスで指定するか否かを表し、通常は true を指定します。
 
-リダイレクト先URIは文字列で指定します。URIパスの特定にあたっては、Spring MVC のAPIの`MvcUriComponentsBuilder`の`fromMethodName()`メソッドを使用してください。第1引数にコントローラのインタフェースのクラスオブジェクト(`XxxController.class`)、第2引数にメソッド名(定数定義を参照、本チュートリアルでは`PathDef.METHOD_XXX`)、第3引数以降は可変引数で第2引数に指定したメソッドのシグネチャに合わせて指定してください。
-第3引数以降は、リフレクションでメソッドを特定するための情報です。メソッドを特定できるならばnullを指定しても動作しますが、出来るだけ意味のある引数を渡してください。また、リダイレクト先にパス変数が含まれる場合は、第3引数以降に指定した値を該当箇所に埋込んだ形でURIを形成してくれます。
+リダイレクト先URIは文字列で指定します。URIパスの特定にあたっては、Spring MVC のAPIの`MvcUriComponentsBuilder`の`fromMethodCall()`メソッドを使用してください。引数はリダイレクト先のメソッド呼出しを表現するオブジェクト1つです。`MvcUriComponentsBuilder.on(XxxController.class)`でスタブオブジェクトを作り、同オブジェクトのメソッド (リダイレクト先のメソッド) を呼出し、その返却値を前記`fromMethodCall()`メソッドの引数として受け渡してください。単体テストに使う[Mockito](https://code.google.com/p/mockito/ "Mockito")をイメージすると良いでしょう。
+リダイレクト先にパス変数が含まれる場合は、スタブオブジェクトのメソッド呼出しで指定した値を該当箇所に埋込んだ形でURIを形成してくれます。
 
 #### フラッシュスコープでデータを受渡す
 リダイレクト元のメソッドの引数に`RedirectAttributes redirAttr`を指定してください。
@@ -269,9 +269,9 @@ public class LoginControllerImpl implements LoginController {
 
 		redirAttr.addFlashAttribute("loginFailed", true);
 
-		UriComponents redirTo = MvcUriComponentsBuilder.fromMethodName(
-				LoginController.class, PathDef.METHOD_INIT, locale, sitePref,
-				request).build();
+		UriComponents redirTo = fromMethodCall(
+				on(LoginController.class).init(locale, sitePref, request))
+				.build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(redirTo.toUriString(), true));
@@ -284,9 +284,9 @@ public class LoginControllerImpl implements LoginController {
 
 		redirAttr.addFlashAttribute("loggedOut", true);
 
-		UriComponents redirTo = MvcUriComponentsBuilder.fromMethodName(
-				LoginController.class, PathDef.METHOD_INIT, locale, sitePref,
-				request).build();
+		UriComponents redirTo = fromMethodCall(
+				on(LoginController.class).init(locale, sitePref, request))
+				.build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(redirTo.toUriString(), true));
@@ -522,9 +522,9 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 
 		Integer id = 0;
 
-		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,
-				locale, sitePref, request).build();
+		UriComponents uc = fromMethodCall(
+				on(TodoCreateController.class).finish(id, auth, locale,
+						sitePref, request)).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
@@ -782,9 +782,9 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 
 		Integer id = 0;
 
-		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,
-				locale, sitePref, request).build();
+		UriComponents uc = fromMethodCall(
+				on(TodoCreateController.class).finish(id, auth, locale,
+						sitePref, request)).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));
@@ -952,9 +952,9 @@ public class TodoServiceImpl implements TodoService {
 					+ todo.toString());
 		}
 
-		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,
-				locale, sitePref, request).build();
+		UriComponents uc = fromMethodCall(
+				on(TodoCreateController.class).finish(id, auth, locale,
+						sitePref, request)).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));

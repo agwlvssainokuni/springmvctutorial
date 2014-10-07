@@ -16,6 +16,9 @@
 
 package cherry.spring.tutorial.web.secure.todo.create;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromMethodCall;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +30,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
@@ -112,9 +114,9 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 					+ todo.toString());
 		}
 
-		UriComponents uc = MvcUriComponentsBuilder.fromMethodName(
-				TodoCreateController.class, PathDef.METHOD_FINISH, id, auth,
-				locale, sitePref, request).build();
+		UriComponents uc = fromMethodCall(
+				on(TodoCreateController.class).finish(id, auth, locale,
+						sitePref, request)).build();
 
 		ModelAndView mav = new ModelAndView();
 		mav.setView(new RedirectView(uc.toUriString(), true));

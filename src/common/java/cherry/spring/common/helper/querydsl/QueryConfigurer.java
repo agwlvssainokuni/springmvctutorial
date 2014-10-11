@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.json;
+package cherry.spring.common.helper.querydsl;
 
-import java.util.Map;
+import com.mysema.query.sql.SQLQuery;
 
-public interface JsonHelper {
+public interface QueryConfigurer {
 
-	String fromMap(Map<?, ?> map);
-
-	String fromThrowable(Throwable th);
+	SQLQuery configure(SQLQuery query);
 
 }

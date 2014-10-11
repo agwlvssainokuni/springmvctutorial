@@ -29,6 +29,7 @@ import cherry.spring.common.helper.querydsl.QueryConfigurer;
 import cherry.spring.common.helper.querydsl.SQLQueryHelper;
 import cherry.spring.common.lib.etl.CsvConsumer;
 import cherry.spring.common.lib.etl.NoneLimiter;
+import cherry.spring.common.lib.paginate.PagedList;
 import cherry.spring.common.type.DeletedFlag;
 import cherry.spring.common.type.FlagCode;
 import cherry.spring.common.type.jdbc.RowMapperCreator;
@@ -103,17 +104,12 @@ public class TodoServiceImpl implements TodoService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public SearchResult searh(String loginId, SearchCondition cond,
+	public PagedList<Todo> searh(String loginId, SearchCondition cond,
 			long pageNo, long pageSz) {
 		QTodo t = new QTodo("t");
-		cherry.spring.common.helper.querydsl.SearchResult<Todo> r = sqlQueryHelper
-				.search(commonClause(t, loginId, cond),
-						orderByClause(t, loginId, cond), pageNo, pageSz,
-						rowMapperCreator.create(Todo.class), columns(t));
-		SearchResult result = new SearchResult();
-		result.setPageSet(r.getPageSet());
-		result.setResultList(r.getResultList());
-		return result;
+		return sqlQueryHelper.search(commonClause(t, loginId, cond),
+				orderByClause(t, loginId, cond), pageNo, pageSz,
+				rowMapperCreator.create(Todo.class), columns(t));
 	}
 
 	@Transactional(readOnly = true)

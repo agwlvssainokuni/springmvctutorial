@@ -720,9 +720,9 @@ public class TodoListForm implements Serializable {
 
 	private OrderDir orderDir;
 
-	private int pageNo;
+	private long pageNo;
 
-	private int pageSz;
+	private long pageSz;
 
 }
 ```
@@ -793,7 +793,7 @@ public class TodoListControllerImpl implements TodoListController {
 	private int defaultOffsetOfDueDate;
 
 	@Value("${tutorial.web.secure.todo.list.defaultPageSize}")
-	private int defaultPageSize;
+	private long defaultPageSize;
 
 	@Value("${tutorial.web.secure.todo.list.contentType}")
 	private String contentType;
@@ -1087,8 +1087,9 @@ STEP 15では「TODO検索画面の主たる業務ロジックである「検索
 
 		String loginId = auth.getName();
 		SearchCondition cond = createCondition(form);
-		int pageNo = form.getPageNo();
-		int pageSz = form.getPageSz() <= 0 ? defaultPageSize : form.getPageSz();
+		long pageNo = form.getPageNo();
+		long pageSz = form.getPageSz() <= 0L ? defaultPageSize : form
+				.getPageSz();
 
 		SearchResult result = todoService.searh(loginId, cond, pageNo, pageSz);
 
@@ -1130,8 +1131,8 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 ### インタフェース
 
 ```Java:TodoService
-	SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz);
+	SearchResult searh(String loginId, SearchCondition cond, long pageNo,
+			long pageSz);
 ```
 
 ### 実装クラス
@@ -1144,12 +1145,13 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 
 	@Transactional(readOnly = true)
 	@Override
-	public SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz) {
+	public SearchResult searh(String loginId, SearchCondition cond,
+			long pageNo, long pageSz) {
 		QTodo t = new QTodo("t");
-		SQLQueryResult<Todo> r = sqlQueryHelper.search(
-				configurer(t, loginId, cond), pageNo, pageSz,
-				rowMapperCreator.create(Todo.class), columns(t));
+		cherry.spring.common.helper.querydsl.SearchResult<Todo> r = sqlQueryHelper
+				.search(commonClause(t, loginId, cond),
+						orderByClause(t, loginId, cond), pageNo, pageSz,
+						rowMapperCreator.create(Todo.class), columns(t));
 		SearchResult result = new SearchResult();
 		result.setPageSet(r.getPageSet());
 		result.setResultList(r.getResultList());
@@ -1162,10 +1164,9 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 				t.lockVersion, t.deletedFlg };
 	}
 
-	private SQLQueryConfigurer configurer(final QTodo t, final String loginId,
+	private QueryConfigurer commonClause(final QTodo t, final String loginId,
 			final SearchCondition cond) {
-		return new SQLQueryConfigurer() {
-
+		return new QueryConfigurer() {
 			@Override
 			public SQLQuery configure(SQLQuery query) {
 
@@ -1194,9 +1195,14 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 
 				return query.from(t).where(where);
 			}
+		};
+	}
 
+	private QueryConfigurer orderByClause(final QTodo t, final String loginId,
+			final SearchCondition cond) {
+		return new QueryConfigurer() {
 			@Override
-			public SQLQuery orderBy(SQLQuery query) {
+			public SQLQuery configure(SQLQuery query) {
 				if (cond.getOrderBy() == OrderBy.NONE) {
 					return query;
 				} else if (cond.getOrderBy() == OrderBy.ID) {
@@ -1308,7 +1314,7 @@ STEP 16では「TODO検索画面の主たる業務ロジックである「検索
 
 		DownloadAction action = new DownloadAction() {
 			@Override
-			public int doDownload(Writer writer) throws IOException {
+			public long doDownload(Writer writer) throws IOException {
 				return todoService.export(writer, loginId, cond);
 			}
 		};
@@ -1328,7 +1334,7 @@ STEP 16では「TODO検索画面の主たる業務ロジックである「検索
 ### インタフェース
 
 ```Java:TodoService
-	int export(Writer writer, String loginId, SearchCondition cond);
+	long export(Writer writer, String loginId, SearchCondition cond);
 ```
 
 ### 実装クラス
@@ -1336,12 +1342,12 @@ STEP 16では「TODO検索画面の主たる業務ロジックである「検索
 ```Java:TodoServiceImpl
 	@Transactional(readOnly = true)
 	@Override
-	public int export(Writer writer, String loginId, SearchCondition cond) {
+	public long export(Writer writer, String loginId, SearchCondition cond) {
 		try {
 			QTodo t = new QTodo("t");
-			return sqlQueryHelper.download(configurer(t, loginId, cond),
-					new CsvConsumer(writer, true), new NoneLimiter(),
-					columns(t));
+			return sqlQueryHelper.download(commonClause(t, loginId, cond),
+					orderByClause(t, loginId, cond), new CsvConsumer(writer,
+							true), new NoneLimiter(), columns(t));
 		} catch (IOException ex) {
 			throw new IllegalStateException(ex);
 		}

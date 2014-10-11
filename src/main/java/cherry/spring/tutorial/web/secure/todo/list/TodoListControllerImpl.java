@@ -54,7 +54,7 @@ public class TodoListControllerImpl implements TodoListController {
 	private int defaultOffsetOfDueDate;
 
 	@Value("${tutorial.web.secure.todo.list.defaultPageSize}")
-	private int defaultPageSize;
+	private long defaultPageSize;
 
 	@Value("${tutorial.web.secure.todo.list.contentType}")
 	private String contentType;
@@ -105,8 +105,9 @@ public class TodoListControllerImpl implements TodoListController {
 
 		String loginId = auth.getName();
 		SearchCondition cond = createCondition(form);
-		int pageNo = form.getPageNo();
-		int pageSz = form.getPageSz() <= 0 ? defaultPageSize : form.getPageSz();
+		long pageNo = form.getPageNo();
+		long pageSz = form.getPageSz() <= 0L ? defaultPageSize : form
+				.getPageSz();
 
 		SearchResult result = todoService.searh(loginId, cond, pageNo, pageSz);
 
@@ -130,7 +131,7 @@ public class TodoListControllerImpl implements TodoListController {
 
 		DownloadAction action = new DownloadAction() {
 			@Override
-			public int doDownload(Writer writer) throws IOException {
+			public long doDownload(Writer writer) throws IOException {
 				return todoService.export(writer, loginId, cond);
 			}
 		};

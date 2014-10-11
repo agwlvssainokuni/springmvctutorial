@@ -59,8 +59,8 @@ public class TodoListForm implements Serializable {
 
 	private OrderDir orderDir;
 
-	private int pageNo;
+	private long pageNo;
 
-	private int pageSz;
+	private long pageSz;
 
 }

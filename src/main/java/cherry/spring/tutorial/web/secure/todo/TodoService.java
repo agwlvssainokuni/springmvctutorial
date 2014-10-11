@@ -28,9 +28,9 @@ public interface TodoService {
 
 	Todo findById(String loginId, int id);
 
-	SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz);
+	SearchResult searh(String loginId, SearchCondition cond, long pageNo,
+			long pageSz);
 
-	int export(Writer writer, String loginId, SearchCondition cond);
+	long export(Writer writer, String loginId, SearchCondition cond);
 
 }

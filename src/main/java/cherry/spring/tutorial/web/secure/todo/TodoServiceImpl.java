@@ -25,9 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cherry.spring.common.helper.querydsl.SQLQueryConfigurer;
+import cherry.spring.common.helper.querydsl.QueryConfigurer;
 import cherry.spring.common.helper.querydsl.SQLQueryHelper;
-import cherry.spring.common.helper.querydsl.SQLQueryResult;
 import cherry.spring.common.lib.etl.CsvConsumer;
 import cherry.spring.common.lib.etl.NoneLimiter;
 import cherry.spring.common.type.DeletedFlag;
@@ -104,12 +103,13 @@ public class TodoServiceImpl implements TodoService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz) {
+	public SearchResult searh(String loginId, SearchCondition cond,
+			long pageNo, long pageSz) {
 		QTodo t = new QTodo("t");
-		SQLQueryResult<Todo> r = sqlQueryHelper.search(
-				configurer(t, loginId, cond), pageNo, pageSz,
-				rowMapperCreator.create(Todo.class), columns(t));
+		cherry.spring.common.helper.querydsl.SearchResult<Todo> r = sqlQueryHelper
+				.search(commonClause(t, loginId, cond),
+						orderByClause(t, loginId, cond), pageNo, pageSz,
+						rowMapperCreator.create(Todo.class), columns(t));
 		SearchResult result = new SearchResult();
 		result.setPageSet(r.getPageSet());
 		result.setResultList(r.getResultList());
@@ -118,12 +118,12 @@ public class TodoServiceImpl implements TodoService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public int export(Writer writer, String loginId, SearchCondition cond) {
+	public long export(Writer writer, String loginId, SearchCondition cond) {
 		try {
 			QTodo t = new QTodo("t");
-			return sqlQueryHelper.download(configurer(t, loginId, cond),
-					new CsvConsumer(writer, true), new NoneLimiter(),
-					columns(t));
+			return sqlQueryHelper.download(commonClause(t, loginId, cond),
+					orderByClause(t, loginId, cond), new CsvConsumer(writer,
+							true), new NoneLimiter(), columns(t));
 		} catch (IOException ex) {
 			throw new IllegalStateException(ex);
 		}
@@ -135,10 +135,9 @@ public class TodoServiceImpl implements TodoService {
 				t.lockVersion, t.deletedFlg };
 	}
 
-	private SQLQueryConfigurer configurer(final QTodo t, final String loginId,
+	private QueryConfigurer commonClause(final QTodo t, final String loginId,
 			final SearchCondition cond) {
-		return new SQLQueryConfigurer() {
-
+		return new QueryConfigurer() {
 			@Override
 			public SQLQuery configure(SQLQuery query) {
 
@@ -167,9 +166,14 @@ public class TodoServiceImpl implements TodoService {
 
 				return query.from(t).where(where);
 			}
+		};
+	}
 
+	private QueryConfigurer orderByClause(final QTodo t, final String loginId,
+			final SearchCondition cond) {
+		return new QueryConfigurer() {
 			@Override
-			public SQLQuery orderBy(SQLQuery query) {
+			public SQLQuery configure(SQLQuery query) {
 				if (cond.getOrderBy() == OrderBy.NONE) {
 					return query;
 				} else if (cond.getOrderBy() == OrderBy.ID) {

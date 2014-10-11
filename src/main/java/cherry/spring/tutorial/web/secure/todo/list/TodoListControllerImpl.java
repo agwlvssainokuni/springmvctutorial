@@ -37,14 +37,15 @@ import cherry.spring.common.helper.bizdate.BizdateHelper;
 import cherry.spring.common.helper.download.DownloadAction;
 import cherry.spring.common.helper.download.DownloadHelper;
 import cherry.spring.common.helper.querydsl.SQLQueryHelper;
+import cherry.spring.common.lib.paginate.PagedList;
 import cherry.spring.common.lib.util.LocalDateTimeUtil;
 import cherry.spring.common.lib.util.LocalDateUtil;
 import cherry.spring.common.type.FlagCode;
+import cherry.spring.tutorial.db.gen.dto.Todo;
 import cherry.spring.tutorial.web.PathDef;
 import cherry.spring.tutorial.web.secure.todo.OrderBy;
 import cherry.spring.tutorial.web.secure.todo.OrderDir;
 import cherry.spring.tutorial.web.secure.todo.SearchCondition;
-import cherry.spring.tutorial.web.secure.todo.SearchResult;
 import cherry.spring.tutorial.web.secure.todo.TodoService;
 
 @Controller
@@ -109,7 +110,8 @@ public class TodoListControllerImpl implements TodoListController {
 		long pageSz = form.getPageSz() <= 0L ? defaultPageSize : form
 				.getPageSz();
 
-		SearchResult result = todoService.searh(loginId, cond, pageNo, pageSz);
+		PagedList<Todo> result = todoService.searh(loginId, cond, pageNo,
+				pageSz);
 
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);
 		mav.addObject(result);

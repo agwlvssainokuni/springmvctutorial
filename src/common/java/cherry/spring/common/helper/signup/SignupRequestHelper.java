@@ -18,9 +18,9 @@ package cherry.spring.common.helper.signup;
 
 import org.joda.time.LocalDateTime;
 
-public interface SignupRequestDao {
+public interface SignupRequestHelper {
 
-	Integer createSignupRequest(String mailAddr, String token,
+	int createSignupRequest(String mailAddr, String token,
 			LocalDateTime appliedAt);
 
 	boolean validateMailAddr(String mailAddr, LocalDateTime intervalFrom,

@@ -44,7 +44,7 @@ public class TodoListControllerImpl implements TodoListController {
 	private int defaultOffsetOfDueDate;
 
 	@Value("${tutorial.web.secure.todo.list.defaultPageSize}")
-	private int defaultPageSize;
+	private long defaultPageSize;
 
 	@Value("${tutorial.web.secure.todo.list.contentType}")
 	private String contentType;

@@ -26,7 +26,7 @@ public interface TodoService {
 
 	Todo findById(String loginId, int id);
 
-	SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz);
+	SearchResult searh(String loginId, SearchCondition cond, long pageNo,
+			long pageSz);
 
 }

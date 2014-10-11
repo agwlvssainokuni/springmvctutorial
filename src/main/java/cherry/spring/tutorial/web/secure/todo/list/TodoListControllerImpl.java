@@ -102,8 +102,9 @@ public class TodoListControllerImpl implements TodoListController {
 
 		String loginId = auth.getName();
 		SearchCondition cond = createCondition(form);
-		int pageNo = form.getPageNo();
-		int pageSz = form.getPageSz() <= 0 ? defaultPageSize : form.getPageSz();
+		long pageNo = form.getPageNo();
+		long pageSz = form.getPageSz() <= 0L ? defaultPageSize : form
+				.getPageSz();
 
 		SearchResult result = todoService.searh(loginId, cond, pageNo, pageSz);
 

@@ -99,8 +99,8 @@ public class TodoServiceImpl implements TodoService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public SearchResult searh(String loginId, SearchCondition cond, int pageNo,
-			int pageSz) {
+	public SearchResult searh(String loginId, SearchCondition cond,
+			long pageNo, long pageSz) {
 		QTodo t = new QTodo("t");
 		cherry.spring.common.helper.querydsl.SearchResult<Todo> r = sqlQueryHelper
 				.search(commonClause(t, loginId, cond),

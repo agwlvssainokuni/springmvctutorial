@@ -28,8 +28,7 @@
 		</div>
 	</div>
 </s:hasBindErrors>
-<c:if
-	test="${searchResult != null && searchResult.resultList.isEmpty()}">
+<c:if test="${pagedList != null && pagedList.list.isEmpty()}">
 	<div class="has-warning">
 		<div class="help-block">条件に該当する項目はありませn。</div>
 	</div>
@@ -74,8 +73,7 @@
 	<f:button type="submit" class="btn btn-default">検索</f:button>
 	<f:button type="submit" class="btn btn-default" name="download">ダウンロード</f:button>
 </f:form>
-<c:if
-	test="${searchResult != null && !searchResult.resultList.isEmpty()}">
+<c:if test="${pagedList != null && !pagedList.list.isEmpty()}">
 	<f:form servletRelativeAction="/secure/todo/list/execute" method="POST"
 		modelAttribute="todoListForm" id="todoListFormHidden"
 		class="app-pager-form">
@@ -90,7 +88,7 @@
 		<f:hidden path="pageNo" id="pageNoHidden" cssClass="app-page-no" />
 		<f:hidden path="pageSz" id="pageSzHidden" cssClass="app-page-sz" />
 	</f:form>
-	<mytag:pagerLink pageSet="${searchResult.pageSet}" />
+	<mytag:pagerLink pageSet="${pagedList.pageSet}" />
 	<table class="table table-striped">
 		<thead>
 			<tr>
@@ -102,14 +100,13 @@
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach var="count" begin="1"
-				end="${searchResult.resultList.size()}">
-				<s:nestedPath path="searchResult.resultList[${count - 1}]">
+			<c:forEach var="count" begin="1" end="${pagedList.list.size()}">
+				<s:nestedPath path="pagedList.list[${count - 1}]">
 					<s:bind path="id">
 						<c:url var="url" value="/secure/todo/${status.value}" />
 					</s:bind>
 					<tr>
-						<td>${searchResult.pageSet.current.from + count}</td>
+						<td>${pagedList.pageSet.current.from + count}</td>
 						<td><a href="${url}"><s:bind path="id">${status.value}</s:bind></a></td>
 						<td><a href="${url}"><s:bind path="postedAt">${status.value}</s:bind></a></td>
 						<td><s:bind path="dueDate">${status.value}</s:bind></td>
@@ -119,5 +116,5 @@
 			</c:forEach>
 		</tbody>
 	</table>
-	<mytag:pagerLink pageSet="${searchResult.pageSet}" />
+	<mytag:pagerLink pageSet="${pagedList.pageSet}" />
 </c:if>

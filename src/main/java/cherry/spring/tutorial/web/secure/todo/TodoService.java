@@ -16,6 +16,7 @@
 
 package cherry.spring.tutorial.web.secure.todo;
 
+import cherry.spring.common.lib.paginate.PagedList;
 import cherry.spring.tutorial.db.gen.dto.Todo;
 
 public interface TodoService {
@@ -26,7 +27,7 @@ public interface TodoService {
 
 	Todo findById(String loginId, int id);
 
-	SearchResult searh(String loginId, SearchCondition cond, long pageNo,
+	PagedList<Todo> searh(String loginId, SearchCondition cond, long pageNo,
 			long pageSz);
 
 }

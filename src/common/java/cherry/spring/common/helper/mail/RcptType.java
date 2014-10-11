@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.password;
+package cherry.spring.common.helper.mail;
 
-public interface UserPasswordDao {
-
-	int updatePassword(int id, String password);
-
-	int changePassword(String loginId, String password);
-
+public enum RcptType {
+	CC, BCC
 }

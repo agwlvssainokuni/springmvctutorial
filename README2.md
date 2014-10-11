@@ -952,8 +952,7 @@ JSPの作成項目は下記の通りです。
 		</div>
 	</div>
 </s:hasBindErrors>
-<c:if
-	test="${searchResult != null && searchResult.resultList.isEmpty()}">
+<c:if test="${pagedList != null && pagedList.list.isEmpty()}">
 	<div class="has-warning">
 		<div class="help-block">条件に該当する項目はありませn。</div>
 	</div>
@@ -998,8 +997,7 @@ JSPの作成項目は下記の通りです。
 	<f:button type="submit" class="btn btn-default">検索</f:button>
 	<f:button type="submit" class="btn btn-default" name="download">ダウンロード</f:button>
 </f:form>
-<c:if
-	test="${searchResult != null && !searchResult.resultList.isEmpty()}">
+<c:if test="${pagedList != null && !pagedList.list.isEmpty()}">
 	<f:form servletRelativeAction="/secure/todo/list/execute" method="POST"
 		modelAttribute="todoListForm" id="todoListFormHidden"
 		class="app-pager-form">
@@ -1014,7 +1012,7 @@ JSPの作成項目は下記の通りです。
 		<f:hidden path="pageNo" id="pageNoHidden" cssClass="app-page-no" />
 		<f:hidden path="pageSz" id="pageSzHidden" cssClass="app-page-sz" />
 	</f:form>
-	<mytag:pagerLink pageSet="${searchResult.pageSet}" />
+	<mytag:pagerLink pageSet="${pagedList.pageSet}" />
 	<table class="table table-striped">
 		<thead>
 			<tr>
@@ -1026,24 +1024,23 @@ JSPの作成項目は下記の通りです。
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach var="count" begin="1"
-				end="${searchResult.resultList.size()}">
-				<s:nestedPath path="searchResult.resultList[${count - 1}]">
+			<c:forEach var="count" begin="1" end="${pagedList.list.size()}">
+				<s:nestedPath path="pagedList.list[${count - 1}]">
 					<s:bind path="id">
 						<c:url var="url" value="/secure/todo/${status.value}" />
 					</s:bind>
 					<tr>
-						<td>${searchResult.pageSet.current.from + count}</td>
+						<td>${pagedList.pageSet.current.from + count}</td>
 						<td><a href="${url}"><s:bind path="id">${status.value}</s:bind></a></td>
 						<td><a href="${url}"><s:bind path="postedAt">${status.value}</s:bind></a></td>
 						<td><s:bind path="dueDate">${status.value}</s:bind></td>
-						<td><s:bind path="doneFlg">${status.actualValue.isTrue() ? "完了" : "未完了" }</s:bind></td>
+						<td><s:bind path="doneFlg">${status.actualValue.booleanValue() ? "完了" : "未完了" }</s:bind></td>
 					</tr>
 				</s:nestedPath>
 			</c:forEach>
 		</tbody>
 	</table>
-	<mytag:pagerLink pageSet="${searchResult.pageSet}" />
+	<mytag:pagerLink pageSet="${pagedList.pageSet}" />
 </c:if>
 ```
 
@@ -1091,7 +1088,8 @@ STEP 15では「TODO検索画面の主たる業務ロジックである「検索
 		long pageSz = form.getPageSz() <= 0L ? defaultPageSize : form
 				.getPageSz();
 
-		SearchResult result = todoService.searh(loginId, cond, pageNo, pageSz);
+		PagedList<Todo> result = todoService.searh(loginId, cond, pageNo,
+				pageSz);
 
 		ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_LIST);
 		mav.addObject(result);
@@ -1131,7 +1129,7 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 ### インタフェース
 
 ```Java:TodoService
-	SearchResult searh(String loginId, SearchCondition cond, long pageNo,
+	PagedList<Todo> searh(String loginId, SearchCondition cond, long pageNo,
 			long pageSz);
 ```
 
@@ -1145,17 +1143,12 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 
 	@Transactional(readOnly = true)
 	@Override
-	public SearchResult searh(String loginId, SearchCondition cond,
+	public PagedList<Todo> searh(String loginId, SearchCondition cond,
 			long pageNo, long pageSz) {
 		QTodo t = new QTodo("t");
-		cherry.spring.common.helper.querydsl.SearchResult<Todo> r = sqlQueryHelper
-				.search(commonClause(t, loginId, cond),
-						orderByClause(t, loginId, cond), pageNo, pageSz,
-						rowMapperCreator.create(Todo.class), columns(t));
-		SearchResult result = new SearchResult();
-		result.setPageSet(r.getPageSet());
-		result.setResultList(r.getResultList());
-		return result;
+		return sqlQueryHelper.search(commonClause(t, loginId, cond),
+				orderByClause(t, loginId, cond), pageNo, pageSz,
+				rowMapperCreator.create(Todo.class), columns(t));
 	}
 
 	private Expression<?>[] columns(QTodo t) {
@@ -1255,24 +1248,6 @@ public class SearchCondition implements Serializable {
 	private OrderBy orderBy;
 
 	private OrderDir orderDir;
-
-}
-```
-
-### 検索結果
-
-```Java:SearchResult
-@Setter
-@Getter
-@EqualsAndHashCode
-@ToString
-public class SearchResult implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	private PageSet pageSet;
-
-	private List<Todo> resultList;
 
 }
 ```

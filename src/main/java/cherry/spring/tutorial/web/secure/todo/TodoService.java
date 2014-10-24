@@ -16,7 +16,7 @@
 
 package cherry.spring.tutorial.web.secure.todo;
 
-import cherry.spring.common.lib.paginate.PagedList;
+import cherry.goods.paginate.PagedList;
 import cherry.spring.tutorial.db.gen.dto.Todo;
 
 public interface TodoService {

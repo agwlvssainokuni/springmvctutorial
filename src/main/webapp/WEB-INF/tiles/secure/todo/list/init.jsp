@@ -8,7 +8,7 @@
 <%@ taglib prefix="security"
 	uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles"%>
-<%@ taglib prefix="common" uri="urn:springapp:common"%>
+<%@ taglib prefix="fwcore" uri="urn:springapp:fwcore"%>
 <%@ taglib prefix="mytag" tagdir="/WEB-INF/tags"%>
 <h2>TODO検索</h2>
 <s:hasBindErrors name="todoListForm">

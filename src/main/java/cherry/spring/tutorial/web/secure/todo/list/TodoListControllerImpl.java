@@ -30,8 +30,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
 import cherry.spring.common.helper.bizdate.BizdateHelper;
-import cherry.spring.common.helper.download.DownloadHelper;
-import cherry.spring.common.helper.querydsl.SQLQueryHelper;
+import cherry.spring.fwcore.download.DownloadHelper;
+import cherry.spring.fwcore.querydsl.SQLQueryHelper;
 import cherry.spring.tutorial.web.PathDef;
 import cherry.spring.tutorial.web.secure.todo.OrderBy;
 import cherry.spring.tutorial.web.secure.todo.OrderDir;

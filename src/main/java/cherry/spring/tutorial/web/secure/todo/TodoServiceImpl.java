@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cherry.spring.common.type.DeletedFlag;
+import cherry.spring.fwcore.type.DeletedFlag;
 import cherry.spring.tutorial.db.gen.dto.Todo;
 import cherry.spring.tutorial.db.gen.dto.TodoCriteria;
 import cherry.spring.tutorial.db.gen.dto.TodoCriteria.Criteria;

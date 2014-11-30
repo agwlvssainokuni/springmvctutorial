@@ -121,7 +121,6 @@ public class TodoEditForm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@CustomDateTimeFormat()
 	private LocalDate dueDate;
 
 	@NotEmpty
@@ -130,7 +129,6 @@ public class TodoEditForm implements Serializable {
 
 	private boolean doneFlg;
 
-	@CustomDateTimeFormat()
 	private LocalDateTime doneAt;
 
 	private int lockVersion;
@@ -193,10 +191,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 	private TodoService todoService;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
-
-	@Autowired
-	private LogicalErrorHelper logicalErrorHelper;
+	private BizDateTime bizDateTime;
 
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;
@@ -290,7 +285,7 @@ STEP 11では「画面の入力および妥当性検証NGの画面遷移を作�
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
+			LogicalErrorUtil.rejectOnOneTimeTokenError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;
@@ -414,7 +409,7 @@ STEP 12では「TODO編集画面の主たる業務ロジックである「DBのT
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
+			LogicalErrorUtil.rejectOnOneTimeTokenError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;
@@ -424,14 +419,14 @@ STEP 12では「TODO編集画面の主たる業務ロジックである「DBのT
 		newTodo.setDueDate(form.getDueDate());
 		newTodo.setDescription(form.getDescription());
 		newTodo.setDoneFlg(FlagCode.valueOf(form.isDoneFlg()));
-		if (form.isDoneFlg() && !todo.getDoneFlg().isTrue()) {
-			newTodo.setDoneAt(bizdateHelper.now());
+		if (form.isDoneFlg() && !todo.getDoneFlg().booleanValue()) {
+			newTodo.setDoneAt(bizDateTime.now());
 		}
 		newTodo.setLockVersion(form.getLockVersion());
 
 		boolean result = todoService.update(auth.getName(), id, newTodo);
 		if (!result) {
-			logicalErrorHelper.rejectOnOptimisticLockError(binding);
+			LogicalErrorUtil.rejectOnOptimisticLockError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;

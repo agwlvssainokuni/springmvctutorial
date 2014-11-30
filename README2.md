@@ -1250,7 +1250,7 @@ STEP 16では「TODO検索画面の主たる業務ロジックである「検索
 	*	日付範囲、日時範囲は、本チュートリアルが提供するユーティリティで算出する(STEP 13で述べた技術要素はユーティリティにて取込まれる)。
 *	ダウンロードデータを生成するためのアクション`DownloadAction`を用意する。
 	*	同アクションの中で、サービス`TodoService`のエクスポートメソッド(後述)を呼出すようにする。
-*	上記アクションを指定して、ダウンロードヘルパ(`DownloadHelper`)を呼出す。
+*	上記アクションを指定して、ダウンロードヘルパ(`DownloadOperation`)を呼出す。
 	*	ヘルパの中でダウンロード用の共通処理(レスポンスヘッダのセットアップ、出力先の準備)を実施し、
 	*	上記アクションが呼出される。
 	*	ストリームのクローズはヘルパの中で実施される。
@@ -1273,15 +1273,18 @@ STEP 16では「TODO検索画面の主たる業務ロジックである「検索
 
 		final String loginId = auth.getName();
 		final SearchCondition cond = createCondition(form);
+		final Charset charset = StandardCharsets.UTF_8;
 
 		DownloadAction action = new DownloadAction() {
 			@Override
-			public long doDownload(Writer writer) throws IOException {
-				return todoService.export(writer, loginId, cond);
+			public long doDownload(OutputStream stream) throws IOException {
+				try (Writer writer = new OutputStreamWriter(stream, charset)) {
+					return todoService.export(writer, loginId, cond);
+				}
 			}
 		};
-		downloadHelper.download(response, contentType, filename,
-				bizdateHelper.now(), action);
+		downloadOperation.download(response, contentType, charset, filename,
+				bizDateTime.now(), action);
 
 		return null;
 	}

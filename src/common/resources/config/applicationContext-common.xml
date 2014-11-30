@@ -13,7 +13,6 @@
 
 	<tx:annotation-driven />
 
-	<bean id="asyncStatusStore" class="cherry.spring.common.helper.async.AsyncStatusStoreImpl" />
 	<bean id="bizDateTime" class="cherry.spring.common.helper.bizdate.BizDateTimeImpl" />
 	<bean id="mailMessageHelper" class="cherry.spring.common.helper.mail.MailMessageHelperImpl" />
 	<bean id="signupRequestHelper"

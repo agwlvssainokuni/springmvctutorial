@@ -939,7 +939,7 @@ public class TodoServiceImpl implements TodoService {
 
 		Todo todo = new Todo();
 		todo.setPostedBy(auth.getName());
-		todo.setPostedAt(bizdateHelper.now());
+		todo.setPostedAt(bizDateTime.now());
 		todo.setDueDate(form.getDueDate());
 		todo.setDescription(form.getDescription());
 		Integer id = todoService.create(todo);

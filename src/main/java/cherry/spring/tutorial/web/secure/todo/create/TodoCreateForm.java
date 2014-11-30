@@ -28,8 +28,7 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDate;
 
-import cherry.spring.fwcore.type.format.CustomDateTimeFormat;
-import cherry.spring.fwcore.validator.MaxLength;
+import cherry.foundation.validator.MaxLength;
 
 @Setter
 @Getter
@@ -40,7 +39,6 @@ public class TodoCreateForm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@CustomDateTimeFormat()
 	private LocalDate dueDate;
 
 	@NotEmpty

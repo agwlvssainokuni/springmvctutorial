@@ -24,24 +24,13 @@
 			targetProject="./src/mybatis/java" />
 		<javaClientGenerator targetPackage="cherry.spring.tutorial.db.gen.mapper"
 			type="ANNOTATEDMAPPER" targetProject="./src/mybatis/java" />
-		<table tableName="async_proc">
-			<generatedKey column="id" sqlStatement="JDBC" />
-			<columnOverride column="registered_at" javaType="org.joda.time.LocalDateTime" />
-			<columnOverride column="invoked_at" javaType="org.joda.time.LocalDateTime" />
-			<columnOverride column="started_at" javaType="org.joda.time.LocalDateTime" />
-			<columnOverride column="finished_at" javaType="org.joda.time.LocalDateTime" />
-			<columnOverride column="updated_at" javaType="org.joda.time.LocalDateTime" />
-			<columnOverride column="created_at" javaType="org.joda.time.LocalDateTime" />
-			<columnOverride column="deleted_flg"
-				javaType="cherry.spring.fwcore.type.DeletedFlag" />
-		</table>
 		<table tableName="bizdatetime_master">
 			<generatedKey column="id" sqlStatement="JDBC" />
 			<columnOverride column="bizdate" javaType="org.joda.time.LocalDate" />
 			<columnOverride column="updated_at" javaType="org.joda.time.LocalDateTime" />
 			<columnOverride column="created_at" javaType="org.joda.time.LocalDateTime" />
 			<columnOverride column="deleted_flg"
-				javaType="cherry.spring.fwcore.type.DeletedFlag" />
+				javaType="cherry.foundation.type.DeletedFlag" />
 		</table>
 		<table tableName="todo">
 			<generatedKey column="id" sqlStatement="JDBC" />
@@ -49,11 +38,11 @@
 			<columnOverride column="due_date" javaType="org.joda.time.LocalDate" />
 			<columnOverride column="done_at" javaType="org.joda.time.LocalDateTime" />
 			<columnOverride column="done_flg"
-				javaType="cherry.spring.fwcore.type.FlagCode" />
+				javaType="cherry.foundation.type.FlagCode" />
 			<columnOverride column="updated_at" javaType="org.joda.time.LocalDateTime" />
 			<columnOverride column="created_at" javaType="org.joda.time.LocalDateTime" />
 			<columnOverride column="deleted_flg"
-				javaType="cherry.spring.fwcore.type.DeletedFlag" />
+				javaType="cherry.foundation.type.DeletedFlag" />
 		</table>
 	</context>
 </generatorConfiguration>

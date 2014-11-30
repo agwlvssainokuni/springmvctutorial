@@ -122,15 +122,15 @@ compileTestJava.options.encoding = "UTF-8"
 sourceSets.main {
 	java {
 		srcDir "src/goods/java"
-		srcDir "src/fwcore/java"
+		srcDir "src/foundation/java"
 		srcDir "src/common/java"
 		srcDir "src/mybatis/java"
 		srcDir "src/querydsl/java"
 	}
 	resources {
 		srcDir "src/main/java"
-		srcDir "src/fwcore/java"
-		srcDir "src/fwcore/resources"
+		srcDir "src/foundation/java"
+		srcDir "src/foundation/resources"
 		srcDir "src/common/java"
 		srcDir "src/common/resources"
 		srcDir "src/mybatis/java"

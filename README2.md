@@ -121,7 +121,6 @@ public class TodoEditForm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@CustomDateTimeFormat()
 	private LocalDate dueDate;
 
 	@NotEmpty
@@ -130,7 +129,6 @@ public class TodoEditForm implements Serializable {
 
 	private boolean doneFlg;
 
-	@CustomDateTimeFormat()
 	private LocalDateTime doneAt;
 
 	private int lockVersion;
@@ -193,10 +191,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 	private TodoService todoService;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
-
-	@Autowired
-	private LogicalErrorHelper logicalErrorHelper;
+	private BizDateTime bizDateTime;
 
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;
@@ -290,7 +285,7 @@ STEP 11では「画面の入力および妥当性検証NGの画面遷移を作�
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
+			LogicalErrorUtil.rejectOnOneTimeTokenError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;

@@ -285,7 +285,7 @@ STEP 11では「画面の入力および妥当性検証NGの画面遷移を作�
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
+			LogicalErrorUtil.rejectOnOneTimeTokenError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;

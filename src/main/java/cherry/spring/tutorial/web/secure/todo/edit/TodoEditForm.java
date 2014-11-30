@@ -29,8 +29,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import cherry.spring.fwcore.type.format.CustomDateTimeFormat;
-import cherry.spring.fwcore.validator.MaxLength;
+import cherry.foundation.validator.MaxLength;
 
 @Setter
 @Getter
@@ -41,7 +40,6 @@ public class TodoEditForm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@CustomDateTimeFormat()
 	private LocalDate dueDate;
 
 	@NotEmpty
@@ -50,7 +48,6 @@ public class TodoEditForm implements Serializable {
 
 	private boolean doneFlg;
 
-	@CustomDateTimeFormat()
 	private LocalDateTime doneAt;
 
 	private int lockVersion;

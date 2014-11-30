@@ -31,13 +31,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
+import cherry.foundation.bizdtm.BizDateTime;
+import cherry.foundation.download.DownloadOperation;
+import cherry.foundation.querydsl.SQLQueryHelper;
+import cherry.foundation.type.FlagCode;
 import cherry.goods.paginate.PagedList;
 import cherry.goods.util.LocalDateTimeUtil;
 import cherry.goods.util.LocalDateUtil;
-import cherry.spring.common.helper.bizdate.BizdateHelper;
-import cherry.spring.fwcore.download.DownloadHelper;
-import cherry.spring.fwcore.querydsl.SQLQueryHelper;
-import cherry.spring.fwcore.type.FlagCode;
 import cherry.spring.tutorial.db.gen.dto.Todo;
 import cherry.spring.tutorial.web.PathDef;
 import cherry.spring.tutorial.web.secure.todo.OrderBy;
@@ -64,19 +64,18 @@ public class TodoListControllerImpl implements TodoListController {
 	private TodoService todoService;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
+	private BizDateTime bizDateTime;
 
 	@Autowired
 	private SQLQueryHelper sqlQueryHelper;
 
 	@Autowired
-	private DownloadHelper downloadHelper;
+	private DownloadOperation downloadOperation;
 
 	@Override
 	public TodoListForm getForm() {
 		TodoListForm form = new TodoListForm();
-		form.setDueDateTo(bizdateHelper.today()
-				.plusDays(defaultOffsetOfDueDate));
+		form.setDueDateTo(bizDateTime.today().plusDays(defaultOffsetOfDueDate));
 		form.setNotDone(true);
 		form.setOrderBy(OrderBy.POSTED_AT);
 		form.setOrderDir(OrderDir.DESC);

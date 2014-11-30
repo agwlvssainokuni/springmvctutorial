@@ -409,7 +409,7 @@ STEP 12では「TODO編集画面の主たる業務ロジックである「DBのT
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
+			LogicalErrorUtil.rejectOnOneTimeTokenError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;
@@ -419,14 +419,14 @@ STEP 12では「TODO編集画面の主たる業務ロジックである「DBのT
 		newTodo.setDueDate(form.getDueDate());
 		newTodo.setDescription(form.getDescription());
 		newTodo.setDoneFlg(FlagCode.valueOf(form.isDoneFlg()));
-		if (form.isDoneFlg() && !todo.getDoneFlg().isTrue()) {
-			newTodo.setDoneAt(bizdateHelper.now());
+		if (form.isDoneFlg() && !todo.getDoneFlg().booleanValue()) {
+			newTodo.setDoneAt(bizDateTime.now());
 		}
 		newTodo.setLockVersion(form.getLockVersion());
 
 		boolean result = todoService.update(auth.getName(), id, newTodo);
 		if (!result) {
-			logicalErrorHelper.rejectOnOptimisticLockError(binding);
+			LogicalErrorUtil.rejectOnOptimisticLockError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;

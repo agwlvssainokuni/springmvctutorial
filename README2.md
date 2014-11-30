@@ -966,7 +966,7 @@ JSPの作成項目は下記の通りです。
 		<f:label path="orderBy" cssErrorClass="has-error">ソート列</f:label>
 		<f:select path="orderBy" cssErrorClass="has-error">
 			<c:set var="orderByList"
-				value="${common:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderBy')}" />
+				value="${foundation:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderBy')}" />
 			<f:options itemValue="enumName" itemLabel="enumLabel"
 				items="${orderByList}" />
 		</f:select>
@@ -974,7 +974,7 @@ JSPの作成項目は下記の通りです。
 	<div class="form-group">
 		<f:label path="orderDir" cssErrorClass="has-error">ソート順</f:label>
 		<c:set var="orderDirList"
-			value="${common:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderDir')}" />
+			value="${foundation:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderDir')}" />
 		<f:radiobuttons path="orderDir" itemValue="enumName"
 			itemLabel="enumLabel" items="${orderDirList}"
 			cssErrorClass="has-error" />

@@ -106,13 +106,13 @@ public class TodoEditControllerImpl implements TodoEditController {
 		newTodo.setDescription(form.getDescription());
 		newTodo.setDoneFlg(FlagCode.valueOf(form.isDoneFlg()));
 		if (form.isDoneFlg() && !todo.getDoneFlg().booleanValue()) {
-			newTodo.setDoneAt(bizdateHelper.now());
+			newTodo.setDoneAt(bizDateTime.now());
 		}
 		newTodo.setLockVersion(form.getLockVersion());
 
 		boolean result = todoService.update(auth.getName(), id, newTodo);
 		if (!result) {
-			logicalErrorHelper.rejectOnOptimisticLockError(binding);
+			LogicalErrorUtil.rejectOnOptimisticLockError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;

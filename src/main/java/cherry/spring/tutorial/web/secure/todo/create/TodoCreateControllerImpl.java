@@ -33,7 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
-import cherry.spring.common.helper.bizdate.BizdateHelper;
+import cherry.foundation.bizdtm.BizDateTime;
 import cherry.spring.tutorial.web.PathDef;
 
 @Controller
@@ -43,12 +43,12 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	private int defaultOffsetOfDueDate;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
+	private BizDateTime bizDateTime;
 
 	@Override
 	public TodoCreateForm getForm() {
 		TodoCreateForm form = new TodoCreateForm();
-		form.setDueDate(bizdateHelper.today().plusDays(defaultOffsetOfDueDate));
+		form.setDueDate(bizDateTime.today().plusDays(defaultOffsetOfDueDate));
 		return form;
 	}
 

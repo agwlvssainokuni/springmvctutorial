@@ -8,7 +8,7 @@
 <%@ taglib prefix="security"
 	uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles"%>
-<%@ taglib prefix="fwcore" uri="urn:springapp:fwcore"%>
+<%@ taglib prefix="foundation" uri="urn:cherry:foundation"%>
 <%@ taglib prefix="mytag" tagdir="/WEB-INF/tags"%>
 <h2>TODO検索</h2>
 <s:hasBindErrors name="todoListForm">
@@ -55,7 +55,7 @@
 		<f:label path="orderBy" cssErrorClass="has-error">ソート列</f:label>
 		<f:select path="orderBy" cssErrorClass="has-error">
 			<c:set var="orderByList"
-				value="${fwcore:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderBy')}" />
+				value="${foundation:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderBy')}" />
 			<f:options itemValue="enumName" itemLabel="enumLabel"
 				items="${orderByList}" />
 		</f:select>
@@ -63,7 +63,7 @@
 	<div class="form-group">
 		<f:label path="orderDir" cssErrorClass="has-error">ソート順</f:label>
 		<c:set var="orderDirList"
-			value="${fwcore:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderDir')}" />
+			value="${foundation:getLabeledEnumList('cherry.spring.tutorial.web.secure.todo.OrderDir')}" />
 		<f:radiobuttons path="orderDir" itemValue="enumName"
 			itemLabel="enumLabel" items="${orderDirList}"
 			cssErrorClass="has-error" />

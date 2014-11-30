@@ -33,11 +33,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
-import cherry.spring.common.helper.bizdate.BizdateHelper;
-import cherry.spring.fwcore.logicalerror.LogicalErrorHelper;
-import cherry.spring.fwcore.mvc.Contract;
-import cherry.spring.fwcore.onetimetoken.OneTimeTokenValidator;
-import cherry.spring.fwcore.type.FlagCode;
+import cherry.foundation.bizdtm.BizDateTime;
+import cherry.foundation.onetimetoken.OneTimeTokenValidator;
+import cherry.foundation.springmvc.Contract;
+import cherry.foundation.type.FlagCode;
 import cherry.spring.tutorial.db.gen.dto.Todo;
 import cherry.spring.tutorial.web.PathDef;
 import cherry.spring.tutorial.web.secure.todo.TodoService;
@@ -49,10 +48,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 	private TodoService todoService;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
-
-	@Autowired
-	private LogicalErrorHelper logicalErrorHelper;
+	private BizDateTime bizDateTime;
 
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;

@@ -26,8 +26,6 @@ import lombok.ToString;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import cherry.spring.fwcore.type.format.CustomDateTimeFormat;
-import cherry.spring.fwcore.type.format.CustomDateTimeFormat.Range;
 import cherry.spring.tutorial.web.secure.todo.OrderBy;
 import cherry.spring.tutorial.web.secure.todo.OrderDir;
 
@@ -39,16 +37,12 @@ public class TodoListForm implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@CustomDateTimeFormat(Range.FROM)
 	private LocalDateTime postedFrom;
 
-	@CustomDateTimeFormat(Range.TO)
 	private LocalDateTime postedTo;
 
-	@CustomDateTimeFormat(Range.FROM)
 	private LocalDate dueDateFrom;
 
-	@CustomDateTimeFormat(Range.TO)
 	private LocalDate dueDateTo;
 
 	private boolean done;

@@ -724,19 +724,16 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 
 入力値の妥当性の検証のうち「項目間チェック (複数項目に亘る依存性に基づいて入力値をチェック)」「データ整合性チェック (マスタテーブル、区分値、設定値との整合性をチェック)」「多重POSTチェック (ワンタイムトークンを照合)」については、業務ロジックとして個々に実装します。ただし、画面に検証NGのメッセージを表示する仕組みはSpring MVCに則ります。具体的には、`BindingResult`に入力エラー情報をセットします。
 `BindingResult`へは画面に表示するメッセージのID(コード)をセットします。Spring MVCは、プロパティファイル(`message/error.properties`, `message/preseterror.properties`)から、セットされたID(コード)に対応するメッセージの文言を取得し画面に表示します。
-`BindingResult`のメソッドを直接呼出してもメッセージのID(コード)をセットすることはできますが、原則として、補助機能として提供されている`LogicalErrorHelper`を使用します。
+`BindingResult`のメソッドを直接呼出してもメッセージのID(コード)をセットすることはできますが、原則として、補助機能として提供されている`LogicalErrorUtil`を使用します。
 
 ワンタイムトークンの照合は補助機能として提供されている`OneTimeTokenValidator`を使用します(Spring MVCの標準APIとしては提供されていません)。
 
 以上を踏まえ、下記の通りコントローラを実装します。
 
 ### 実装クラス
-補助機能`LogicalErrorHelper`, `OneTimeTokenValidator`を注入します。
+補助機能`OneTimeTokenValidator`を注入します。
 
 ```Java:TodoCreateControllerImpl
-	@Autowired
-	private LogicalErrorHelper logicalErrorHelper;
-
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;
 ```
@@ -774,7 +771,7 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.reject(binding, LogicalError.OneTimeTokenError);
+			LogicalErrorUtil.reject(binding, LogicalError.OneTimeTokenError);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
 			return mav;
 		}

@@ -602,7 +602,6 @@ public class TodoCreateForm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@CustomDateTimeFormat()
 	private LocalDate dueDate;
 
 	@NotEmpty
@@ -644,18 +643,18 @@ tutorial.web.secure.todo.create.defaultOffsetOfDueDate=7
 本チュートリアルもこの考え方に則り、業務日付を今日の日付とします。業務日付は`BizdateHelper#today()`メソッドで取得します。
 
 ### 「『今日の日付』+『オフセット』」を算出する
-`BizdteHelper#today()`メソッドを呼出すために、コントローラの実装クラスに`BizdateHelper`のインスタンスが注入されるように構成します。具体的には、インスタンス変数`private BizdateHelper bizdateHelper`を定義し、これにアノテーション`@Autowired`を付与します。
+`BizdteHelper#today()`メソッドを呼出すために、コントローラの実装クラスに`BizDateTime`のインスタンスが注入されるように構成します。具体的には、インスタンス変数`private BizDateTime bizDateTime`を定義し、これにアノテーション`@Autowired`を付与します。
 
 以上を踏まえ、コントローラの実装クラスを、以下の通り実装します。
 
 ```Java:TodoCreateControllerImpl
 	@Autowired
-	private BizdateHelper bizdateHelper;
+	private BizDateTime bizDateTime;
 
 	@Override
 	public TodoCreateForm getForm() {
 		TodoCreateForm form = new TodoCreateForm();
-		form.setDueDate(bizdateHelper.today().plusDays(defaultOffsetOfDueDate));
+		form.setDueDate(bizDateTime.today().plusDays(defaultOffsetOfDueDate));
 		return form;
 	}
 ```

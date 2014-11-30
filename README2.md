@@ -121,7 +121,6 @@ public class TodoEditForm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@CustomDateTimeFormat()
 	private LocalDate dueDate;
 
 	@NotEmpty
@@ -130,7 +129,6 @@ public class TodoEditForm implements Serializable {
 
 	private boolean doneFlg;
 
-	@CustomDateTimeFormat()
 	private LocalDateTime doneAt;
 
 	private int lockVersion;
@@ -193,10 +191,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 	private TodoService todoService;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
-
-	@Autowired
-	private LogicalErrorHelper logicalErrorHelper;
+	private BizDateTime bizDateTime;
 
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;

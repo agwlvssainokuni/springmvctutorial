@@ -602,7 +602,6 @@ public class TodoCreateForm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@CustomDateTimeFormat()
 	private LocalDate dueDate;
 
 	@NotEmpty
@@ -644,18 +643,18 @@ tutorial.web.secure.todo.create.defaultOffsetOfDueDate=7
 本チュートリアルもこの考え方に則り、業務日付を今日の日付とします。業務日付は`BizdateHelper#today()`メソッドで取得します。
 
 ### 「『今日の日付』+『オフセット』」を算出する
-`BizdteHelper#today()`メソッドを呼出すために、コントローラの実装クラスに`BizdateHelper`のインスタンスが注入されるように構成します。具体的には、インスタンス変数`private BizdateHelper bizdateHelper`を定義し、これにアノテーション`@Autowired`を付与します。
+`BizdteHelper#today()`メソッドを呼出すために、コントローラの実装クラスに`BizDateTime`のインスタンスが注入されるように構成します。具体的には、インスタンス変数`private BizDateTime bizDateTime`を定義し、これにアノテーション`@Autowired`を付与します。
 
 以上を踏まえ、コントローラの実装クラスを、以下の通り実装します。
 
 ```Java:TodoCreateControllerImpl
 	@Autowired
-	private BizdateHelper bizdateHelper;
+	private BizDateTime bizDateTime;
 
 	@Override
 	public TodoCreateForm getForm() {
 		TodoCreateForm form = new TodoCreateForm();
-		form.setDueDate(bizdateHelper.today().plusDays(defaultOffsetOfDueDate));
+		form.setDueDate(bizDateTime.today().plusDays(defaultOffsetOfDueDate));
 		return form;
 	}
 ```
@@ -725,19 +724,16 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 
 入力値の妥当性の検証のうち「項目間チェック (複数項目に亘る依存性に基づいて入力値をチェック)」「データ整合性チェック (マスタテーブル、区分値、設定値との整合性をチェック)」「多重POSTチェック (ワンタイムトークンを照合)」については、業務ロジックとして個々に実装します。ただし、画面に検証NGのメッセージを表示する仕組みはSpring MVCに則ります。具体的には、`BindingResult`に入力エラー情報をセットします。
 `BindingResult`へは画面に表示するメッセージのID(コード)をセットします。Spring MVCは、プロパティファイル(`message/error.properties`, `message/preseterror.properties`)から、セットされたID(コード)に対応するメッセージの文言を取得し画面に表示します。
-`BindingResult`のメソッドを直接呼出してもメッセージのID(コード)をセットすることはできますが、原則として、補助機能として提供されている`LogicalErrorHelper`を使用します。
+`BindingResult`のメソッドを直接呼出してもメッセージのID(コード)をセットすることはできますが、原則として、補助機能として提供されている`LogicalErrorUtil`を使用します。
 
 ワンタイムトークンの照合は補助機能として提供されている`OneTimeTokenValidator`を使用します(Spring MVCの標準APIとしては提供されていません)。
 
 以上を踏まえ、下記の通りコントローラを実装します。
 
 ### 実装クラス
-補助機能`LogicalErrorHelper`, `OneTimeTokenValidator`を注入します。
+補助機能`OneTimeTokenValidator`を注入します。
 
 ```Java:TodoCreateControllerImpl
-	@Autowired
-	private LogicalErrorHelper logicalErrorHelper;
-
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;
 ```
@@ -775,7 +771,7 @@ STEP 06では「妥当性検証NGの場合の画面遷移パターンを実装�
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.reject(binding, LogicalError.OneTimeTokenError);
+			LogicalErrorUtil.reject(binding, LogicalError.OneTimeTokenError);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
 			return mav;
 		}
@@ -943,7 +939,7 @@ public class TodoServiceImpl implements TodoService {
 
 		Todo todo = new Todo();
 		todo.setPostedBy(auth.getName());
-		todo.setPostedAt(bizdateHelper.now());
+		todo.setPostedAt(bizDateTime.now());
 		todo.setDueDate(form.getDueDate());
 		todo.setDescription(form.getDescription());
 		Integer id = todoService.create(todo);

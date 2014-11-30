@@ -121,7 +121,6 @@ public class TodoEditForm implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@CustomDateTimeFormat()
 	private LocalDate dueDate;
 
 	@NotEmpty
@@ -130,7 +129,6 @@ public class TodoEditForm implements Serializable {
 
 	private boolean doneFlg;
 
-	@CustomDateTimeFormat()
 	private LocalDateTime doneAt;
 
 	private int lockVersion;
@@ -193,10 +191,7 @@ public class TodoEditControllerImpl implements TodoEditController {
 	private TodoService todoService;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
-
-	@Autowired
-	private LogicalErrorHelper logicalErrorHelper;
+	private BizDateTime bizDateTime;
 
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;
@@ -290,7 +285,7 @@ STEP 11では「画面の入力および妥当性検証NGの画面遷移を作�
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
+			LogicalErrorUtil.rejectOnOneTimeTokenError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;
@@ -414,7 +409,7 @@ STEP 12では「TODO編集画面の主たる業務ロジックである「DBのT
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.rejectOnOneTimeTokenError(binding);
+			LogicalErrorUtil.rejectOnOneTimeTokenError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;
@@ -424,14 +419,14 @@ STEP 12では「TODO編集画面の主たる業務ロジックである「DBのT
 		newTodo.setDueDate(form.getDueDate());
 		newTodo.setDescription(form.getDescription());
 		newTodo.setDoneFlg(FlagCode.valueOf(form.isDoneFlg()));
-		if (form.isDoneFlg() && !todo.getDoneFlg().isTrue()) {
-			newTodo.setDoneAt(bizdateHelper.now());
+		if (form.isDoneFlg() && !todo.getDoneFlg().booleanValue()) {
+			newTodo.setDoneAt(bizDateTime.now());
 		}
 		newTodo.setLockVersion(form.getLockVersion());
 
 		boolean result = todoService.update(auth.getName(), id, newTodo);
 		if (!result) {
-			logicalErrorHelper.rejectOnOptimisticLockError(binding);
+			LogicalErrorUtil.rejectOnOptimisticLockError(binding);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_EDIT);
 			mav.addObject(PathDef.PATH_VAR_ID, id);
 			return mav;
@@ -682,9 +677,6 @@ STEP 13では「基本的な画面遷移を実装」します。
 ## フォーム
 まずはじめにフォームを定義します。検索条件は「登録日時(範囲)」「期日(範囲)」「完了フラグ」「ソート列」「ソート順」です。
 
-日付、日時の範囲を条件として指定する場合は、範囲下限は`@CustomDateTimeFormat(Range.FROM)`、範囲上限は`@CustomDateTimeFormat(Range.TO)`を指定します。
-アノテーション`@CustomDateTimeFormat`を付与することで、日付の場合は「YYYY/MM/DD」の形式で指定できるようになります。また、日時の場合は「YYYY/MM/DD(時分秒を省略)」「YYYY/MM/DD HH:MM(秒を省略)」「YYYY/MM/DD HH:MM:SS(省略なし)」の形式で指定できるようになります。また、`Range.TO`を指定すると、時分秒が省略された場合は「23:59:59」として、秒が省略された場合は「HH:MM:59」として解析します。なお、`Range.FROM`を指定すると、時分秒が省略された場合は「00:00:00」として、秒が省略された場合は「HH:MM:00」として解析します(事実上、`Range.FROM`を指定しない場合と同じです)。
-
 フォームのプロパティには列挙型を指定することができます。ソート列(orderBy)、ソート順(orderDir)は列挙型で扱います。
 
 ページネーションはページ番号(pageNo)と1ページあたりの件数(pageSz)で指定します。利用者が直接的に入力する項目ではありませんが、これらもフォームのプロパティに含めておきます。検索画面に「戻る」機能を実現する際に、それまでの表示(一覧表示)を復元する上で、ページネーションの内容も必要なためです。
@@ -700,16 +692,12 @@ public class TodoListForm implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@CustomDateTimeFormat(Range.FROM)
 	private LocalDateTime postedFrom;
 
-	@CustomDateTimeFormat(Range.TO)
 	private LocalDateTime postedTo;
 
-	@CustomDateTimeFormat(Range.FROM)
 	private LocalDate dueDateFrom;
 
-	@CustomDateTimeFormat(Range.TO)
 	private LocalDate dueDateTo;
 
 	private boolean done;
@@ -805,19 +793,18 @@ public class TodoListControllerImpl implements TodoListController {
 	private TodoService todoService;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
+	private BizDateTime bizDateTime;
 
 	@Autowired
 	private SQLQueryHelper sqlQueryHelper;
 
 	@Autowired
-	private DownloadHelper downloadHelper;
+	private DownloadOperation downloadOperation;
 
 	@Override
 	public TodoListForm getForm() {
 		TodoListForm form = new TodoListForm();
-		form.setDueDateTo(bizdateHelper.today()
-				.plusDays(defaultOffsetOfDueDate));
+		form.setDueDateTo(bizDateTime.today().plusDays(defaultOffsetOfDueDate));
 		form.setNotDone(true);
 		form.setOrderBy(OrderBy.POSTED_AT);
 		form.setOrderDir(OrderDir.DESC);

@@ -33,10 +33,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 
-import cherry.spring.common.helper.bizdate.BizdateHelper;
-import cherry.spring.fwcore.logicalerror.LogicalError;
-import cherry.spring.fwcore.logicalerror.LogicalErrorHelper;
-import cherry.spring.fwcore.onetimetoken.OneTimeTokenValidator;
+import cherry.foundation.bizdtm.BizDateTime;
+import cherry.foundation.logicalerror.LogicalError;
+import cherry.foundation.logicalerror.LogicalErrorUtil;
+import cherry.foundation.onetimetoken.OneTimeTokenValidator;
 import cherry.spring.tutorial.db.gen.dto.Todo;
 import cherry.spring.tutorial.web.PathDef;
 import cherry.spring.tutorial.web.secure.todo.TodoService;
@@ -51,10 +51,7 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	private TodoService todoService;
 
 	@Autowired
-	private BizdateHelper bizdateHelper;
-
-	@Autowired
-	private LogicalErrorHelper logicalErrorHelper;
+	private BizDateTime bizDateTime;
 
 	@Autowired
 	private OneTimeTokenValidator oneTimeTokenValidator;
@@ -62,7 +59,7 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 	@Override
 	public TodoCreateForm getForm() {
 		TodoCreateForm form = new TodoCreateForm();
-		form.setDueDate(bizdateHelper.today().plusDays(defaultOffsetOfDueDate));
+		form.setDueDate(bizDateTime.today().plusDays(defaultOffsetOfDueDate));
 		return form;
 	}
 
@@ -98,14 +95,14 @@ public class TodoCreateControllerImpl implements TodoCreateController {
 		}
 
 		if (!oneTimeTokenValidator.isValid(request)) {
-			logicalErrorHelper.reject(binding, LogicalError.OneTimeTokenError);
+			LogicalErrorUtil.reject(binding, LogicalError.OneTimeTokenError);
 			ModelAndView mav = new ModelAndView(PathDef.VIEW_TODO_CREATE);
 			return mav;
 		}
 
 		Todo todo = new Todo();
 		todo.setPostedBy(auth.getName());
-		todo.setPostedAt(bizdateHelper.now());
+		todo.setPostedAt(bizDateTime.now());
 		todo.setDueDate(form.getDueDate());
 		todo.setDescription(form.getDescription());
 		Integer id = todoService.create(todo);

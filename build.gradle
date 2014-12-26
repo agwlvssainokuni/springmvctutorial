@@ -22,7 +22,7 @@ ext {
 	versionLogback = "1.1.2"
 	versionMyBatis = "3.2.8"
 	versionMyBatisSpring = "1.2.2"
-	versionQuerydsl = "3.5.0"
+	versionQuerydsl = "3.6.0"
 	versionJackson = "2.4.2"
 	versionAspectJ = "1.8.2"
 	versionAopalliance = "1.0"
@@ -124,8 +124,7 @@ sourceSets.main {
 		srcDir "src/goods/java"
 		srcDir "src/foundation/java"
 		srcDir "src/common/java"
-		srcDir "src/mybatis/java"
-		srcDir "src/querydsl/java"
+		srcDir "src/generated/java"
 	}
 	resources {
 		srcDir "src/main/java"
@@ -133,8 +132,7 @@ sourceSets.main {
 		srcDir "src/foundation/resources"
 		srcDir "src/common/java"
 		srcDir "src/common/resources"
-		srcDir "src/mybatis/java"
-		srcDir "src/querydsl/java"
+		srcDir "src/generated/java"
 	}
 }
 sourceSets.test.resources.srcDir "src/test/java"

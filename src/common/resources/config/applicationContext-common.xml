@@ -13,9 +13,6 @@
 
 	<tx:annotation-driven />
 
-	<bean id="bizDateTime" class="cherry.spring.common.helper.bizdate.BizDateTimeImpl" />
-	<bean id="mailMessageHelper" class="cherry.spring.common.helper.mail.MailMessageHelperImpl" />
-	<bean id="signupRequestHelper"
-		class="cherry.spring.common.helper.signup.SignupRequestHelperImpl" />
+	<bean id="bizDateTime" class="cherry.spring.common.foundation.impl.BizDateTimeImpl" />
 
 </beans>

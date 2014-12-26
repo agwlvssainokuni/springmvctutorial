@@ -51,6 +51,9 @@
 			<set>
 				<bean
 					class="org.springframework.format.number.NumberFormatAnnotationFormatterFactory" />
+				<bean class="org.springframework.format.number.NumberFormatter">
+					<property name="pattern" value="${foundation.format.number}" />
+				</bean>
 			</set>
 		</property>
 		<property name="formatterRegistrars">
@@ -111,14 +114,6 @@
 	<!-- アプリケーションコンテキスト照会設定 -->
 	<bean class="cherry.foundation.AppCtxHolder" />
 
-	<!-- メール送信設定 -->
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-		<property name="host" value="${foundation.mail.host}" />
-		<property name="port" value="${foundation.mail.port}" />
-		<property name="protocol" value="${foundation.mail.protocol}" />
-		<property name="defaultEncoding" value="${foundation.mail.encoding}" />
-	</bean>
-
 	<!-- パスワードハッシュ設定 -->
 	<bean id="passwordEncoder"
 		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
@@ -162,12 +157,12 @@
 
 	<!-- DB処理補助機能設定 -->
 	<bean id="sqlExecutor" class="cherry.foundation.sql.SqlExecutorImpl">
-		<property name="charset" value="${foundation.sqlexecutor.charset}" />
+		<property name="charset" value="UTF-8" />
 	</bean>
 	<bean id="sqlLoader" class="cherry.foundation.sql.SqlLoaderImpl">
-		<property name="charset" value="${foundation.sqlloader.charset}" />
-		<property name="extension" value="${foundation.sqlloader.extension}" />
-		<property name="namePattern" value="${foundation.sqlloader.namePattern}" />
+		<property name="charset" value="UTF-8" />
+		<property name="extension" value=".sql" />
+		<property name="namePattern" value="NAME:\s*(\w+)" />
 	</bean>
 
 	<bean id="extractor" class="cherry.foundation.etl.ExtractorImpl" />

@@ -21,17 +21,8 @@ Spring MVCチュートリアル
 	*	Git
 	*	Gradle
 	*	Maven3
-*	WildFlyをセットアップしてください。
+*	WildFly (またはJBoss EAP。以下、WildFlyと総称します) をセットアップしてください。
 	*	standalone-full.xml を使用します。
-	*	logging サブシステム (`"urn:jboss:domain:logging:2.0"`) 直下に下記の設定を追加してください。
-
-		```xml:standalone-full.xml
-		<subsystem xmlns="urn:jboss:domain:logging:2.0">
-			<add-logging-api-dependencies value="false"/>
-			<use-deployment-logging-config value="false"/>
-			...
-		```
-
 	*	データソースを作成してください。
 		*	JDBCドライバ: H2 (WildFlyに標準搭載)
 		*	JNDI名: java:/datasources/TutorialApp
@@ -39,7 +30,7 @@ Spring MVCチュートリアル
 		*	DBユーザ: sa (パスワードは指定しない)
 *	Eclipseをセットアップしてください。
 	*	Eclipse Luna (4.4)
-	*	マーケットプレースから JBoss Tool をインストールしてください。
+	*	マーケットプレースから JBoss Tool または JBoss Developer Studio をインストールしてください。
 	*	先にセットアップしたWildFlyを指定してサーバを作成してください。standalone-full.xmlを指定してください。
 
 ## チュートリアルのセットアップ
@@ -63,6 +54,17 @@ Spring MVCチュートリアル
 	*	まだ中身を作成していないので何も表示されませんが、http://localhost:8080/springmvctutorial/secure/ へHTTPリダイレクトされればOKです。
 *	WildFlyサーバを停止してください。
 
+## チュートリアルの進め方
+
+*	以下のような進め方を想定して構成しています。
+	*	step-00から順に進める。
+	*	まず説明を読む。
+	*	説明に従い、実際に自分の手でプログラムを書いてみる。
+	*	自分で書いたプログラムをWildFlyサーバで動かして動作を確認する。
+	*	`git checkout step-{NN}` ({NN}は各ステップの番号) すると、当該ステップのプログラム例を見ることができる。
+		*	自分で書いてみる用とプログラム例を見る用とで、ワーキングコピーを別々に展開しておくのがオススメです。
+	*	次のステップへ進む。
+
 
 # STEP 00: DBアクセスコードを生成する。
 
@@ -70,7 +72,7 @@ DBアクセスにあたっては [MyBatis](http://mybatis.github.io/mybatis-3/ "
 なお、DBアクセス用にコード生成ツールの [MyBatis Generator](http://mybatis.github.io/generator/ "MyBatis Generator") と [Querydsl codegen](https://github.com/querydsl/codegen "Querydsl codegen") を使用します。
 
 ```bash:コマンドライン
-$ mvn clean compile flyway:migrate
+$ mvn clean process-resources flyway:migrate
 $ mvn mybatis-generator:generate
 $ mvn querydsl:export
 ```
@@ -109,8 +111,8 @@ Spring MVC は、アノテーションで指定することが前提であり、
 		*	`XxxForm form`
 		*	`BindingResult binding`
 	*	ページネーションする画面で指定する (ページネーションの情報をセッションに入れる場合は、ここに指定せずに、`form`に入れる)
-		*	`int pageNo`
-		*	`int pageSz`
+		*	`long pageNo`
+		*	`long pageSz`
 	*	認証要画面で必須
 		*	`Authentication auth`
 	*	全画面で必須

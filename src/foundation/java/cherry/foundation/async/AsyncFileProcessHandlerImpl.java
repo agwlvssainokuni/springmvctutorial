@@ -24,7 +24,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.time.LocalDateTime;
@@ -60,7 +62,7 @@ public class AsyncFileProcessHandlerImpl implements AsyncFileProcessHandler,
 
 	private BizDateTime bizDateTime;
 
-	private AsyncStatusStore asyncStatusStore;
+	private AsyncProcessStore asyncProcessStore;
 
 	private JmsOperations jmsOperations;
 
@@ -78,8 +80,8 @@ public class AsyncFileProcessHandlerImpl implements AsyncFileProcessHandler,
 		this.bizDateTime = bizDateTime;
 	}
 
-	public void setAsyncStatusStore(AsyncStatusStore asyncStatusStore) {
-		this.asyncStatusStore = asyncStatusStore;
+	public void setAsyncProcessStore(AsyncProcessStore asyncProcessStore) {
+		this.asyncProcessStore = asyncProcessStore;
 	}
 
 	public void setJmsOperations(JmsOperations jmsOperations) {
@@ -110,23 +112,28 @@ public class AsyncFileProcessHandlerImpl implements AsyncFileProcessHandler,
 
 	/**
 	 * 非同期のファイル処理を実行登録する。
-	 * 
+	 *
 	 * @param launcherId
 	 *            非同期処理の実行者のID。
+	 * @param description
+	 *            内容表記。
 	 * @param file
 	 *            処理対象のファイル。
 	 * @param handlerName
 	 *            非同期のファイル処理の処理を実装したBeanの名前。同Beanは{@link FileProcessHandler}
 	 *            を実装しなければならない。
+	 * @param args
+	 *            引数。
 	 * @return 非同期実行状況の管理データのID。
 	 */
 	@Override
-	public long launchFileProcess(String launcherId, MultipartFile file,
-			String handlerName) {
+	public long launchFileProcess(String launcherId, String description,
+			MultipartFile file, String handlerName, String... args) {
 
-		long asyncId = asyncStatusStore.createFileProcess(launcherId,
-				bizDateTime.now(), file.getName(), file.getOriginalFilename(),
-				file.getContentType(), file.getSize(), handlerName);
+		long asyncId = asyncProcessStore.createFileProcess(launcherId,
+				bizDateTime.now(), description, file.getName(),
+				file.getOriginalFilename(), file.getContentType(),
+				file.getSize(), handlerName, args);
 		try {
 
 			File tempFile = createFile(file);
@@ -139,13 +146,16 @@ public class AsyncFileProcessHandlerImpl implements AsyncFileProcessHandler,
 			message.put(CONTENT_TYPE, file.getContentType());
 			message.put(SIZE, String.valueOf(file.getSize()));
 			message.put(HANDLER_NAME, handlerName);
+			for (int i = 0; i < args.length; i++) {
+				message.put(String.valueOf(i), args[i]);
+			}
 			jmsOperations.convertAndSend(message, messagePostProcessor);
 
-			asyncStatusStore.updateToLaunched(asyncId, bizDateTime.now());
+			asyncProcessStore.updateToLaunched(asyncId, bizDateTime.now());
 			return asyncId;
 		} catch (IOException ex) {
-			asyncStatusStore
-					.finishWithException(asyncId, bizDateTime.now(), ex);
+			asyncProcessStore.finishWithException(asyncId, bizDateTime.now(),
+					ex);
 			throw new IllegalStateException(ex);
 		}
 	}
@@ -153,7 +163,7 @@ public class AsyncFileProcessHandlerImpl implements AsyncFileProcessHandler,
 	/**
 	 * 実行登録したファイル処理を実行する。<br />
 	 * 本メソッドはコンテナが呼出すことを意図するものである。
-	 * 
+	 *
 	 * @param message
 	 *            {@link #launchFileProcess(String, MultipartFile, String)}
 	 *            において登録した内容がコンテナから受渡される。
@@ -169,13 +179,23 @@ public class AsyncFileProcessHandlerImpl implements AsyncFileProcessHandler,
 		long size = Long.parseLong(message.get(SIZE));
 		String handlerName = message.get(HANDLER_NAME);
 
-		asyncStatusStore.updateToProcessing(asyncId, bizDateTime.now());
+		List<String> args = new ArrayList<>();
+		for (int i = 0;; i++) {
+			String v = message.get(String.valueOf(i));
+			if (v == null) {
+				break;
+			}
+			args.add(v);
+		}
+
+		asyncProcessStore.updateToProcessing(asyncId, bizDateTime.now());
 		try {
 
 			FileProcessHandler handler = applicationContext.getBean(
 					handlerName, FileProcessHandler.class);
 			FileProcessResult result = handler.handleFile(tempFile, name,
-					originalFilename, contentType, size, asyncId);
+					originalFilename, contentType, size, asyncId,
+					args.toArray(new String[args.size()]));
 
 			AsyncStatus status;
 			if (result.getTotalCount() == result.getOkCount()) {
@@ -186,11 +206,11 @@ public class AsyncFileProcessHandlerImpl implements AsyncFileProcessHandler,
 				status = AsyncStatus.WARN;
 			}
 
-			asyncStatusStore.finishFileProcess(asyncId, bizDateTime.now(),
+			asyncProcessStore.finishFileProcess(asyncId, bizDateTime.now(),
 					status, result);
 		} catch (Exception ex) {
-			asyncStatusStore
-					.finishWithException(asyncId, bizDateTime.now(), ex);
+			asyncProcessStore.finishWithException(asyncId, bizDateTime.now(),
+					ex);
 		} finally {
 			deleteFile(tempFile);
 		}

@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.mail;
+package cherry.spring.common.api;
 
-public interface IMailId {
+public enum StatusCode {
+	OK(0), WARN(1), ERROR(2);
 
-	String templateName();
+	private int value;
+
+	private StatusCode(int value) {
+		this.value = value;
+	}
+
+	public int getValue() {
+		return value;
+	}
 
 }

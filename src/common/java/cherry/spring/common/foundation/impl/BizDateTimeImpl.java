@@ -14,38 +14,28 @@
  * limitations under the License.
  */
 
-package cherry.spring.common.helper.bizdate;
+package cherry.spring.common.foundation.impl;
 
 import static com.mysema.query.types.expr.DateTimeExpression.currentTimestamp;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.query.QueryDslJdbcOperations;
-import org.springframework.jdbc.core.RowMapper;
 
 import cherry.foundation.bizdtm.BizDateTime;
 import cherry.foundation.type.DeletedFlag;
-import cherry.foundation.type.jdbc.RowMapperCreator;
 import cherry.spring.tutorial.db.gen.query.QBizdatetimeMaster;
 
+import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
+import com.mysema.query.types.Expression;
+import com.mysema.query.types.QTuple;
 
-public class BizDateTimeImpl implements BizDateTime, InitializingBean {
+public class BizDateTimeImpl implements BizDateTime {
 
 	@Autowired
 	private QueryDslJdbcOperations queryDslJdbcOperations;
-
-	@Autowired
-	private RowMapperCreator rowMapperCreator;
-
-	private RowMapper<BizdateDto> rowMapper;
-
-	@Override
-	public void afterPropertiesSet() {
-		rowMapper = rowMapperCreator.create(BizdateDto.class);
-	}
 
 	@Override
 	public LocalDate today() {
@@ -60,19 +50,19 @@ public class BizDateTimeImpl implements BizDateTime, InitializingBean {
 
 	@Override
 	public LocalDateTime now() {
+		Expression<LocalDateTime> curDtm = currentTimestamp(LocalDateTime.class);
 		QBizdatetimeMaster a = new QBizdatetimeMaster("a");
 		SQLQuery query = createSqlQuery(a);
-		BizdateDto dto = queryDslJdbcOperations.queryForObject(query,
-				rowMapper, a.offsetDay, a.offsetHour, a.offsetMinute,
-				a.offsetSecond,
-				currentTimestamp(LocalDateTime.class).as("current_date_time"));
-		if (dto == null) {
+		Tuple tuple = queryDslJdbcOperations.queryForObject(query, new QTuple(
+				curDtm, a.offsetDay, a.offsetHour, a.offsetMinute,
+				a.offsetSecond));
+		if (tuple == null) {
 			return LocalDateTime.now();
 		}
-		return dto.getCurrentDateTime().plusDays(dto.getOffsetDay())
-				.plusHours(dto.getOffsetHour())
-				.plusMinutes(dto.getOffsetMinute())
-				.plusSeconds(dto.getOffsetSecond());
+		return tuple.get(curDtm).plusDays(tuple.get(a.offsetDay))
+				.plusHours(tuple.get(a.offsetHour))
+				.plusMinutes(tuple.get(a.offsetMinute))
+				.plusSeconds(tuple.get(a.offsetSecond));
 	}
 
 	private SQLQuery createSqlQuery(QBizdatetimeMaster a) {

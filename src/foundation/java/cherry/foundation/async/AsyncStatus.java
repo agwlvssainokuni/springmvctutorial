@@ -24,7 +24,7 @@ import cherry.foundation.type.Code;
  */
 public enum AsyncStatus implements Code<String> {
 	/** キュー投入準備中 (初期状態)。 */
-	PREPARING("0"),
+	LAUNCHING("0"),
 	/** キュー投入済み。 */
 	LAUNCHED("1"),
 	/** 非同期処理実行中。 */

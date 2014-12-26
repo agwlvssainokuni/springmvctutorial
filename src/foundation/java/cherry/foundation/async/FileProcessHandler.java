@@ -48,6 +48,8 @@ public interface FileProcessHandler {
 	 *            {@link MultipartFile}の内容を受け取る。
 	 * @param asyncId
 	 *            非同期実行状況の管理データのID。
+	 * @param args
+	 *            追加パラメタ。
 	 * @return 非同期で実行したファイル処理の結果。
 	 * @throws IOException
 	 *             ファイルの処理にあたり発生したI/O例外は、非同期処理フレームワークがまとめて捕捉して処理する
@@ -55,7 +57,7 @@ public interface FileProcessHandler {
 	 *             ではI/O例外に対する処理を実装しない。
 	 */
 	FileProcessResult handleFile(File file, String name,
-			String originalFilename, String contentType, long size, long asyncId)
-			throws IOException;
+			String originalFilename, String contentType, long size,
+			long asyncId, String... args) throws IOException;
 
 }

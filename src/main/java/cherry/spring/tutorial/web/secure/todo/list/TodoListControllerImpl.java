@@ -40,7 +40,7 @@ import org.springframework.web.servlet.ModelAndView;
 import cherry.foundation.bizdtm.BizDateTime;
 import cherry.foundation.download.DownloadAction;
 import cherry.foundation.download.DownloadOperation;
-import cherry.foundation.querydsl.SQLQueryHelper;
+import cherry.foundation.querydsl.QueryDslSupport;
 import cherry.foundation.type.FlagCode;
 import cherry.goods.paginate.PagedList;
 import cherry.goods.util.LocalDateTimeUtil;
@@ -74,7 +74,7 @@ public class TodoListControllerImpl implements TodoListController {
 	private BizDateTime bizDateTime;
 
 	@Autowired
-	private SQLQueryHelper sqlQueryHelper;
+	private QueryDslSupport queryDslSupport;
 
 	@Autowired
 	private DownloadOperation downloadOperation;

@@ -31,7 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import cherry.foundation.bizdtm.BizDateTime;
 import cherry.foundation.download.DownloadOperation;
-import cherry.foundation.querydsl.SQLQueryHelper;
+import cherry.foundation.querydsl.QueryDslSupport;
 import cherry.spring.tutorial.web.PathDef;
 import cherry.spring.tutorial.web.secure.todo.OrderBy;
 import cherry.spring.tutorial.web.secure.todo.OrderDir;
@@ -59,7 +59,7 @@ public class TodoListControllerImpl implements TodoListController {
 	private BizDateTime bizDateTime;
 
 	@Autowired
-	private SQLQueryHelper sqlQueryHelper;
+	private QueryDslSupport queryDslSupport;
 
 	@Autowired
 	private DownloadOperation downloadOperation;

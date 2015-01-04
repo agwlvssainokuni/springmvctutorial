@@ -593,7 +593,7 @@ TODO検索画面では、下記3つの技術要素を中心に説明します。
 | ORDER BY句     | 指定しない | 条件を指定 | ←同じ       |
 | LIMIT OFFSET句 | 指定しない | 条件を指定 | 指定しない   |
 
-本チュートリアルでは、この切替えに対応したヘルパ (`SQLQueryHelper`) を使用して検索画面の機能を作成します。
+本チュートリアルでは、この切替えに対応したヘルパ (`QueryDslSupport`) を使用して検索画面の機能を作成します。
 
 ### 動的なSQL形成 (Querydsl SQL)
 検索画面では、画面に入力された検索条件に応じてSQL文を動的に形成する必要があります。
@@ -794,9 +794,6 @@ public class TodoListControllerImpl implements TodoListController {
 
 	@Autowired
 	private BizDateTime bizDateTime;
-
-	@Autowired
-	private SQLQueryHelper sqlQueryHelper;
 
 	@Autowired
 	private DownloadOperation downloadOperation;
@@ -1109,7 +1106,7 @@ STEP 15では「TODO検索画面の主たる業務ロジックである「検索
 
 ## サービス
 サービス`TodoService`に検索処理を`search`メソッドとして作成します。
-STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成します。SQLの形成にあたっては、STEP 13で述べたように、全SQLで共通、ORDER BY句、LIMIT OFFSET句、SELECT句とを、別々に構成します(そのようにヘルパ`SQLQueryHelper`のAPIは設計されています)。
+STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成します。SQLの形成にあたっては、STEP 13で述べたように、全SQLで共通、ORDER BY句、LIMIT OFFSET句、SELECT句とを、別々に構成します(そのようにヘルパ`QueryDslSupport`のAPIは設計されています)。
 
 以上を踏まえ、下記のようにサービスを作成します。
 
@@ -1123,7 +1120,7 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 ### 実装クラス
 ```Java:TodoServiceImpl
 	@Autowired
-	private SQLQueryHelper sqlQueryHelper;
+	private QueryDslSupport queryDslSupport;
 
 	@Autowired
 	private RowMapperCreator rowMapperCreator;
@@ -1133,7 +1130,7 @@ STEP 13で述べたように、Querydsl SQLを使用して動的SQLを形成し�
 	public PagedList<Todo> searh(String loginId, SearchCondition cond,
 			long pageNo, long pageSz) {
 		QTodo t = new QTodo("t");
-		return sqlQueryHelper.search(commonClause(t, loginId, cond),
+		return queryDslSupport.search(commonClause(t, loginId, cond),
 				orderByClause(t, loginId, cond), pageNo, pageSz,
 				rowMapperCreator.create(Todo.class), columns(t));
 	}
@@ -1292,7 +1289,7 @@ STEP 16では「TODO検索画面の主たる業務ロジックである「検索
 
 ## サービス
 サービス`TodoService`にエクスポート処理を`export`メソッドとして作成します。
-動的SQLの形成は、STEP 14で用意したものをそのまま使います(そのまま使えるようにヘルパ`SQLQueryHelper`のAPIは設計されています)。
+動的SQLの形成は、STEP 14で用意したものをそのまま使います(そのまま使えるようにヘルパ`QueryDslSupport`のAPIは設計されています)。
 
 以上を踏まえ、下記のようにサービスを作成します。
 
@@ -1310,7 +1307,7 @@ STEP 16では「TODO検索画面の主たる業務ロジックである「検索
 	public long export(Writer writer, String loginId, SearchCondition cond) {
 		try {
 			QTodo t = new QTodo("t");
-			return sqlQueryHelper.download(commonClause(t, loginId, cond),
+			return queryDslSupport.download(commonClause(t, loginId, cond),
 					orderByClause(t, loginId, cond), new CsvConsumer(writer,
 							true), new NoneLimiter(), columns(t));
 		} catch (IOException ex) {

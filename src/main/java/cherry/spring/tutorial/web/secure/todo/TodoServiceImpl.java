@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import cherry.foundation.etl.CsvConsumer;
 import cherry.foundation.etl.NoneLimiter;
 import cherry.foundation.querydsl.QueryConfigurer;
-import cherry.foundation.querydsl.SQLQueryHelper;
+import cherry.foundation.querydsl.QueryDslSupport;
 import cherry.foundation.type.DeletedFlag;
 import cherry.foundation.type.FlagCode;
 import cherry.foundation.type.jdbc.RowMapperCreator;
@@ -50,7 +50,7 @@ public class TodoServiceImpl implements TodoService {
 	private TodoMapper todoMapper;
 
 	@Autowired
-	private SQLQueryHelper sqlQueryHelper;
+	private QueryDslSupport queryDslSupport;
 
 	@Autowired
 	private RowMapperCreator rowMapperCreator;
@@ -107,7 +107,7 @@ public class TodoServiceImpl implements TodoService {
 	public PagedList<Todo> searh(String loginId, SearchCondition cond,
 			long pageNo, long pageSz) {
 		QTodo t = new QTodo("t");
-		return sqlQueryHelper.search(commonClause(t, loginId, cond),
+		return queryDslSupport.search(commonClause(t, loginId, cond),
 				orderByClause(t, loginId, cond), pageNo, pageSz,
 				rowMapperCreator.create(Todo.class), columns(t));
 	}
@@ -117,7 +117,7 @@ public class TodoServiceImpl implements TodoService {
 	public long export(Writer writer, String loginId, SearchCondition cond) {
 		try {
 			QTodo t = new QTodo("t");
-			return sqlQueryHelper.download(commonClause(t, loginId, cond),
+			return queryDslSupport.download(commonClause(t, loginId, cond),
 					orderByClause(t, loginId, cond), new CsvConsumer(writer,
 							true), new NoneLimiter(), columns(t));
 		} catch (IOException ex) {
